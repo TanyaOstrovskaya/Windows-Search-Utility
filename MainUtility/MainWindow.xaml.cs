@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
@@ -8,24 +10,21 @@ namespace MainUtility
 {
     public partial class MainWindow : Window
     {
+        [ImportMany]
+        IEnumerable<Lazy<IPlugin, IPluginData>> plugins;
+
+
         private CompositionContainer _container;
-
-        [Import(typeof(IPlugin))]
-        public IPlugin txtPlugin;
-
 
         public MainWindow()
         {
             InitializeComponent();
 
-
-
-
             //An aggregate catalog that combines multiple catalogs
             var catalog = new AggregateCatalog();
             //Adds all the parts found in the same assembly as the Program class
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(MainWindow).Assembly));
-            String path = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName + "\\Extensions";
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(SearchArguments).Assembly));
+            String path = Directory.GetCurrentDirectory() + "\\Extensions";
             catalog.Catalogs.Add(new DirectoryCatalog(path));
 
 
@@ -42,12 +41,15 @@ namespace MainUtility
                 Console.WriteLine(compositionException.ToString());
             }
 
-
-
-
-
-            this.FilesList.ItemsSource = txtPlugin.searchResult;
-            txtPlugin.FindFilesByParams(new SearchArguments("C:\\Users\\user\\Desktop\\txt_folder", false, FileAttributes.ReadOnly));
+            foreach (Lazy<IPlugin, IPluginData> i in plugins)
+            {
+                if (i.Metadata.Extension.Equals("txt"))
+                {
+                    i.Value.FindFilesByParams(new SearchArguments("C:\\Users\\user\\Desktop\\txt_folder\\papka", false, FileAttributes.Archive));
+                    FilesList.ItemsSource = i.Value.searchResult;
+                }
+            }
+            
         }
        
 

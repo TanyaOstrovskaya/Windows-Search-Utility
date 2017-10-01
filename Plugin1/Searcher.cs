@@ -13,18 +13,17 @@ namespace PluginTxt
     [ExportMetadata("Extension", "txt")]
     public class Searcher : MainUtility.IPlugin
     {
-        public List<String> searchResult { get; set; }
-        private bool _isSearchStoppedByUser;
+        public List<string> searchResult { get; set; }
+        private bool _isSearchStoppedByUser { get; set; }
         private SearchArguments _args;
 
-        public Searcher()  { }
+        public Searcher() { }
 
         public bool FindFilesByParams(SearchArguments args)
         {
-            searchResult = null;
+            _isSearchStoppedByUser = false;
             _args = args;
 
-            var resultFileList = new List<String>();
             var dirPath = args.DirPath;
 
             if (args.IsSearchRecursive)
@@ -35,25 +34,26 @@ namespace PluginTxt
             return true;
         }
 
-        private void SearchDir (string dirPath)
+        private void SearchDir(string dirPath)
         {
+            searchResult = new List<string>();
             try
             {
                 foreach (string file in Directory.GetFiles(dirPath))
                 {
-                    if (CheckAllSearchParameters (file, _args.Attributes))
+                    if (this.CheckAllSearchParameters(file, _args.Attributes))
                         searchResult.Add(file);
                     if (_isSearchStoppedByUser)
                         return;
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine(ex.Message);
             }
-        }     
+        }
 
-        private void SearchDirRecursively (string dirPath)
+        private void SearchDirRecursively(string dirPath)
         {
             try
             {
@@ -78,11 +78,10 @@ namespace PluginTxt
         private bool CheckAllSearchParameters(string file, FileAttributes searchAttributes)
         {
             FileAttributes fileAttr = File.GetAttributes(file);
-            if (fileAttr.Equals(searchAttributes))
+            if ((fileAttr.CompareTo (searchAttributes) == 0) && ( file != null ))
                 return true;
-            else
-                return false;
-                
+       
+            return false;
         }
     }
 }

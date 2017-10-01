@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MainUtility"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        <ListBox Name="FilesList"></ListBox>
+    <Grid>       
+        <ListView Name="FilesList" Margin="20"></ListView>
     </Grid>
 </Window>
