@@ -16,11 +16,15 @@ namespace MainUtility
 {
     public partial class FirstWindow : Window
     {
-        private String CurrentDir { get; set; }
+        private string CurrentDir { get; set; }
+        private int MaxFileSize { get; set; }
+        public string Size { get; set; }
+
 
         public FirstWindow()
         {
             InitializeComponent();
+
         }
 
         private void DialogButton_Click(object sender, RoutedEventArgs e)
@@ -29,9 +33,21 @@ namespace MainUtility
             DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-
+                this.CurrentDir = dialog.SelectedPath;
+                this.InputDirBlock.Text = dialog.SelectedPath;
             }
 
         }
+
+        private void InputDirBlock_DataContextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            this.CurrentDir = InputDirBlock.Text;
+        }
+
+        private void fileSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<Double> e)
+        {
+            this.MaxFileSize = (int)fileSizeSlider.Value;
+        }
+
     }
 }

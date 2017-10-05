@@ -4,8 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MainUtility"
-        mc:Ignorable="d" FontSize="20"
-        Title="Окно параметров поиска" Height="700" Width="700" ResizeMode="NoResize">
+        mc:Ignorable="d" FontSize="19"
+        Title="Окно параметров поиска" Height="650" Width="650" ResizeMode="CanMinimize">
     <Grid Background="LightGray">
         <Grid.RowDefinitions>
             <RowDefinition Height="5"></RowDefinition>
@@ -23,7 +23,7 @@
             <RowDefinition Height="10"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
@@ -46,24 +46,24 @@
         </Grid.ColumnDefinitions>
         <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" FontWeight="Bold">Установка параметров поиска</Label>
         <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="7"> 1. Укажите путь к директории:</Label>
-        <TextBlock x:Name="InputDirBlock" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" Background="White"></TextBlock>
+        <TextBox TextChanged="InputDirBlock_DataContextChanged" x:Name="InputDirBlock" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" Background="White"></TextBox>
         <Button x:Name="DialogButton" Grid.Row="5" Grid.Column="7" Click="DialogButton_Click">ОБЗОР...</Button>
         <Label Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="7"> 2. Производить поиск в подкаталогах</Label>
         <StackPanel Grid.Row="8" Grid.Column="1">
-            <RadioButton GroupName="IsSearchRecursive" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">да</RadioButton>
-            <RadioButton GroupName="IsSearchRecursive" Focusable="False" IsHitTestVisible="False" VerticalAlignment="Center">нет</RadioButton>
+            <RadioButton GroupName="IsSearchRecursive" VerticalAlignment="Center">да</RadioButton>
+            <RadioButton GroupName="IsSearchRecursive" VerticalAlignment="Center">нет</RadioButton>
         </StackPanel>
         
         <Label Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" > 3. Укажите атрибуты файлов: </Label>
         <StackPanel Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3" x:Name="attribitesStackPanel">
-            <RadioButton Content="Архивный"/>
-            <RadioButton Content="Скрытый" />
-            <RadioButton Content="Системный" />
-            <RadioButton Content="Только чтение" />
+            <CheckBox Content="Архивный"/>
+            <CheckBox Content="Скрытый" />
+            <CheckBox Content="Системный" />
+            <CheckBox Content="Только чтение" />
         </StackPanel>
-        <Label Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="5"> 4. Ограничение на размер файла (Кб)</Label>
-        <Slider Grid.Row="15" Grid.Column="1" Grid.ColumnSpan="5" Maximum="100" Minimum="1" Value="15"></Slider>
-        <Label  Grid.Row="15" Grid.Column="7">slider value</Label>
+        <Label Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="5" > 4. Ограничение на размер файла (Кб)</Label>
+        <Slider x:Name="fileSizeSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Minimum="0" Maximum="1048756" ValueChanged="fileSizeSlider_ValueChanged" Grid.Row="15" Grid.Column="1" Grid.ColumnSpan="5" Value="15"></Slider>
+        <Label x:Name="label" Grid.Row="15" Grid.Column="7" ></Label>
         <Label Grid.Row="17" Grid.Column="1" Grid.ColumnSpan="7" Margin="0,4,0,2" Grid.RowSpan="2"> 5. Искать файлы, созданные не позднее чем:</Label>
         <DatePicker Grid.Row="19" Grid.Column="1" Grid.ColumnSpan="3"></DatePicker>
         <Button  Grid.Row="22" Grid.Column="7">Начать поиск</Button>
