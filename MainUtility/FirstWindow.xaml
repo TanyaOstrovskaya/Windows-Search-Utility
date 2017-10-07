@@ -49,14 +49,14 @@
         <TextBox TextChanged="InputDirBlock_DataContextChanged" x:Name="InputDirBlock" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" Background="White"></TextBox>
         <Button x:Name="DialogButton" Grid.Row="5" Grid.Column="7" Click="DialogButton_Click">ОБЗОР...</Button>
         <Label Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="7"> 2. Производить поиск в подкаталогах</Label>
-        <StackPanel Grid.Row="8" Grid.Column="1">
+        <StackPanel x:Name="recursiveSearchContainer" Grid.Row="8" Grid.Column="1">
             <RadioButton GroupName="IsSearchRecursive" VerticalAlignment="Center">да</RadioButton>
             <RadioButton GroupName="IsSearchRecursive" VerticalAlignment="Center">нет</RadioButton>
         </StackPanel>
         
         <Label Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" > 3. Укажите атрибуты файлов: </Label>
         <StackPanel Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3" x:Name="attribitesStackPanel">
-            <CheckBox Content="Архивный"/>
+            <CheckBox Content="Архивный" />
             <CheckBox Content="Скрытый" />
             <CheckBox Content="Системный" />
             <CheckBox Content="Только чтение" />
@@ -66,7 +66,7 @@
         <Label x:Name="label" Grid.Row="15" Grid.Column="7" ></Label>
         <Label Grid.Row="17" Grid.Column="1" Grid.ColumnSpan="7" Margin="0,4,0,2" Grid.RowSpan="2"> 5. Искать файлы, созданные не позднее чем:</Label>
         <DatePicker Grid.Row="19" Grid.Column="1" Grid.ColumnSpan="3"></DatePicker>
-        <Button  Grid.Row="22" Grid.Column="7">Начать поиск</Button>
+        <Button Click="Button_Click" Grid.Row="22" Grid.Column="7">Начать поиск</Button>
         
     </Grid>
 </Window>

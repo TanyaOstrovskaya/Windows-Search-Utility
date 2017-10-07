@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using System.Windows.Controls;
 
 namespace MainUtility
 {
@@ -24,19 +16,17 @@ namespace MainUtility
         public FirstWindow()
         {
             InitializeComponent();
-
         }
 
         private void DialogButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new FolderBrowserDialog();
-            DialogResult result = dialog.ShowDialog();
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 this.CurrentDir = dialog.SelectedPath;
                 this.InputDirBlock.Text = dialog.SelectedPath;
             }
-
         }
 
         private void InputDirBlock_DataContextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
@@ -49,5 +39,47 @@ namespace MainUtility
             this.MaxFileSize = (int)fileSizeSlider.Value;
         }
 
+        private bool GetCheckedRecursiveSearch ()
+        {
+            return recursiveSearchContainer.Children.OfType<RadioButton>().FirstOrDefault(r => (bool)r.IsChecked).Content.Equals("да");
+        }
+        
+        private FileAttributes GetSelectedFileAttributes()
+        {
+            FileAttributes result = new FileAttributes();
+            foreach (CheckBox chBox in attribitesStackPanel.Children)
+            {
+                if ((bool)chBox.IsChecked)                
+                    result |= FileAttributes.Archive;              
+            }
+
+            return result;
+        }
+
+        private FileAttributes GetFileAttributeNumberByName(string attr)
+        {
+            switch (attr)
+            {
+                case "Архивный":
+                    return FileAttributes.Archive;                 
+                case "Скрытый":
+                    return FileAttributes.Hidden;                   
+                case "Системный":
+                    return FileAttributes.System; 
+                case "Только чтение":
+                    return FileAttributes.ReadOnly;
+                default:
+                    return 0;
+            }       
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.SearchArgs = new SearchArguments(CurrentDir, GetCheckedRecursiveSearch(), GetSelectedFileAttributes());
+            mainWindow.Show();
+            this.Close();
+
+        }
     }
 }

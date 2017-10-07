@@ -5,8 +5,39 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MainUtility"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>       
-        <ListView Name="FilesList" Margin="20"></ListView>
+        Title="Результаты поиска" Height="350" Width="600">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="5"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="5"></ColumnDefinition>       
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="1" Grid.Column="1">Текущая директория поиска:</Label>
+        <Label x:Name="currentDirName" Grid.Row="3" Grid.Column="1"></Label>
+        <Label Grid.Row="5" Grid.Column="1">Выберите расширения файлов:</Label>
+        <ListBox x:Name="pluginNamesListBox" Grid.Row="7" Grid.Column="1" Grid.RowSpan="3">
+            
+        </ListBox>
+        <Label Grid.Row="1" Grid.Column="3">Найденные файлы:</Label>
+        <ListView Grid.Row="3" Grid.Column="3"  Name="FilesList" Margin="2" Grid.RowSpan="5"  Grid.ColumnSpan="4"></ListView>
+        <Button Grid.Row="9" Grid.Column="4" Margin="5">Изменить параметры поиска </Button>
+        <Button Grid.Row="9" Grid.Column="5" Margin="5">Остановить поиск</Button>
     </Grid>
 </Window>
