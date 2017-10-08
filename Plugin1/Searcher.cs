@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
 using MainUtility;
+using System.Windows.Controls;
 
 namespace PluginTxt
 {
@@ -14,12 +15,13 @@ namespace PluginTxt
     public class SearcherTxt : MainUtility.IPlugin
     {
         public List<string> searchResult { get; set; }
+        public bool IsSearchInProgress { get; set; }
         private bool _isSearchStoppedByUser { get; set; }
         private SearchArguments _args;
 
         public SearcherTxt() { }
 
-        public bool FindFilesByParams(SearchArguments args)
+        public UserControl FindFilesByParams(SearchArguments args)
         {
             _isSearchStoppedByUser = false;
             _args = args;
@@ -31,7 +33,7 @@ namespace PluginTxt
             else
                 SearchDir(dirPath);
 
-            return true;
+            return null;
         }
 
         private void SearchDir(string dirPath)

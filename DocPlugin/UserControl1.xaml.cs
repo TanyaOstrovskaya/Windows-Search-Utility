@@ -3,35 +3,53 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 using System.ComponentModel.Composition;
 using MainUtility;
 using System.IO;
 
-namespace PluginDoc
+namespace DocPlugin
 {
     [Export(typeof(MainUtility.IPlugin))]
     [ExportMetadata("Extension", "doc")]
-    public class SearcherDoc : MainUtility.IPlugin
+    public partial class UserControl1 : UserControl, MainUtility.IPlugin
     {
-        public List<string> searchResult { get; set; }
-        private bool _isSearchStoppedByUser { get; set; }
         private SearchArguments _args;
+        private bool _isSearchStoppedByUser { get; set; }
+        public List<string> searchResult { get; set; }
+        public bool IsSearchInProgress { get; set; }
 
-        public bool FindFilesByParams(SearchArguments args)
+
+        public UserControl1()
         {
-            _isSearchStoppedByUser = false;
-            _args = args;
+            InitializeComponent();
+        }
 
-            var dirPath = args.DirPath;
+        public UserControl FindFilesByParams(SearchArguments args)
+        {
+            return this;
+        }
 
-            if (args.IsSearchRecursive)
+        private void searchButton_Click(object sender, RoutedEventArgs e)
+        {
+            IsSearchInProgress = true;
+
+            var dirPath = _args.DirPath;
+            if (_args.IsSearchRecursive)
                 SearchDirRecursively(dirPath);
             else
                 SearchDir(dirPath);
 
-            return true;
+            IsSearchInProgress = false;
         }
-
 
         private void SearchDir(string dirPath)
         {
@@ -40,7 +58,8 @@ namespace PluginDoc
             {
                 foreach (string file in Directory.GetFiles(dirPath))
                 {
-                    if (this.CheckAllSearchParameters(file, _args.Attributes))
+                    FileInfo fInfo = new FileInfo(file);
+                    if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0) && (fInfo.Length < _args.FileSize))
                         searchResult.Add(file);
                     if (_isSearchStoppedByUser)
                         return;
@@ -54,13 +73,15 @@ namespace PluginDoc
 
         private void SearchDirRecursively(string dirPath)
         {
+            searchResult = new List<string>();
             try
             {
                 foreach (string dir in Directory.GetDirectories(dirPath))
                 {
                     foreach (string file in Directory.GetFiles(dir))
                     {
-                        if (CheckAllSearchParameters(file, _args.Attributes))
+                        FileInfo fInfo = new FileInfo(file);
+                        if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0) && (fInfo.Length < _args.FileSize))
                             searchResult.Add(file);
                         if (_isSearchStoppedByUser)
                             return;
@@ -84,3 +105,4 @@ namespace PluginDoc
         }
     }
 }
+

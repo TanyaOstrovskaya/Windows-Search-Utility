@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MainUtility"
         mc:Ignorable="d"
-        Title="Результаты поиска" Height="350" Width="600">
+        Title="Результаты поиска" Height="350" Width="610">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="5"></RowDefinition>
@@ -37,6 +37,7 @@
         </ListBox>
         <Label Grid.Row="1" Grid.Column="3">Найденные файлы:</Label>
         <ListView Grid.Row="3" Grid.Column="3"  Name="FilesList" Margin="2" Grid.RowSpan="5"  Grid.ColumnSpan="4"></ListView>
+        <Button Click="SearchButton_Click" Grid.Row="9" Grid.Column="3" Margin="5">ПОИСК</Button>
         <Button Grid.Row="9" Grid.Column="4" Margin="5">Изменить параметры поиска </Button>
         <Button Grid.Row="9" Grid.Column="5" Margin="5">Остановить поиск</Button>
     </Grid>

@@ -19,7 +19,7 @@ namespace MainUtility
         private AggregateCatalog _catalog;
         private DirectoryCatalog _dirCatalog;
         private CompositionContainer _container;
-        private FileSystemWatcher watcher;
+        private FileSystemWatcher _watcher;
         private String path = Directory.GetCurrentDirectory() + "\\Extensions";
 
         public SearchArguments SearchArgs { get; set; }
@@ -33,23 +33,23 @@ namespace MainUtility
             _catalog = new AggregateCatalog();
            
 
-            watcher = new FileSystemWatcher();
-            watcher.Path = path;
-            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
+            _watcher = new FileSystemWatcher();
+            _watcher.Path = path;
+            _watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
                 | NotifyFilters.FileName | NotifyFilters.DirectoryName;
 
-            watcher.Filter = "*.dll";
-            watcher.Changed += new FileSystemEventHandler(OnExtensionCatalogChanged);
-            watcher.Created += new FileSystemEventHandler(OnExtensionCatalogChanged);
-            watcher.Deleted += new FileSystemEventHandler(OnExtensionCatalogChanged);
-            watcher.Renamed += new RenamedEventHandler(OnRenamed);
-
-            watcher.EnableRaisingEvents = true;
+            _watcher.Filter = "*.dll";
+            _watcher.Changed += new FileSystemEventHandler(OnExtensionCatalogChanged);
+            _watcher.Created += new FileSystemEventHandler(OnExtensionCatalogChanged);
+            _watcher.Deleted += new FileSystemEventHandler(OnExtensionCatalogChanged);
+            _watcher.Renamed += new RenamedEventHandler(OnRenamed);
+            _watcher.EnableRaisingEvents = true;
 
             _dirCatalog = new DirectoryCatalog(path);
 
             ComposeExtensions();
             SearchArgs = new SearchArguments();
+
         }
 
        
@@ -77,16 +77,15 @@ namespace MainUtility
             Dispatcher.BeginInvoke(new ThreadStart(delegate
             {
                 pluginNamesListBox.Items.Clear();
-
                 foreach (Lazy<IPlugin, IPluginData> i in plugins)
                 {
                     AddPluginCheckBox(i.Metadata.Extension);
 
-                    //if (i.Metadata.Extension.Equals("txt"))
-                    //{
-                    //    i.Value.FindFilesByParams(new SearchArguments("C:\\Users\\user\\Desktop\\txt_folder\\papka", false, FileAttributes.Archive));
-                    //    FilesList.ItemsSource = i.Value.searchResult;
-                    //}
+                    if (i.Metadata.Extension.Equals("doc"))
+                    {
+                        i.Value.FindFilesByParams(SearchArgs);
+                        FilesList.ItemsSource = i.Value.searchResult;
+                    }
                 }
             }));
         }
@@ -111,5 +110,25 @@ namespace MainUtility
 
         }
 
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            String pliginName = pluginNamesListBox.SelectedItem.ToString();
+            Dispatcher.BeginInvoke(new ThreadStart(delegate
+            {                
+                foreach (Lazy<IPlugin, IPluginData> i in plugins)
+                {
+                    if (i.Metadata.Extension.Equals(pliginName))
+                    {
+                        Window window = new Window();
+                        StackPanel panel = new StackPanel();                     
+                        UserControl control = i.Value.FindFilesByParams(SearchArgs);
+                        panel.Children.Add(control);
+                        window.Content = panel;
+                        window.Show();
+                    }
+                }
+            }));
+
+        }
     }
 }
