@@ -41,7 +41,8 @@ namespace PluginTxt
             {
                 foreach (string file in Directory.GetFiles(dirPath))
                 {
-                    if (this.CheckAllSearchParameters(file, _args.Attributes))
+                    FileInfo fInfo = new FileInfo(file);
+                    if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0) && (fInfo.Length < _args.FileSize))
                         searchResult.Add(file);
                     if (_isSearchStoppedByUser)
                         return;
@@ -55,13 +56,15 @@ namespace PluginTxt
 
         private void SearchDirRecursively(string dirPath)
         {
+            searchResult = new List<string>();
             try
             {
                 foreach (string dir in Directory.GetDirectories(dirPath))
                 {
                     foreach (string file in Directory.GetFiles(dir))
                     {
-                        if (CheckAllSearchParameters(file, _args.Attributes))
+                        FileInfo fInfo = new FileInfo(file);
+                        if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0) && (fInfo.Length < _args.FileSize))
                             searchResult.Add(file);
                         if (_isSearchStoppedByUser)
                             return;

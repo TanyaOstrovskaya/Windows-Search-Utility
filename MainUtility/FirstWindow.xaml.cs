@@ -9,9 +9,8 @@ namespace MainUtility
     public partial class FirstWindow : Window
     {
         private string CurrentDir { get; set; }
-        private int MaxFileSize { get; set; }
-        public string Size { get; set; }
-
+        private long MaxFileSize { get; set; }
+        private DateTime selectedDate { get; set; }
 
         public FirstWindow()
         {
@@ -36,7 +35,7 @@ namespace MainUtility
 
         private void fileSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<Double> e)
         {
-            this.MaxFileSize = (int)fileSizeSlider.Value;
+            this.MaxFileSize = (long)fileSizeSlider.Value*1024;
         }
 
         private bool GetCheckedRecursiveSearch ()
@@ -76,10 +75,19 @@ namespace MainUtility
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = new MainWindow();
-            mainWindow.SearchArgs = new SearchArguments(CurrentDir, GetCheckedRecursiveSearch(), GetSelectedFileAttributes());
+  
+            SearchArguments args = new SearchArguments(CurrentDir, GetCheckedRecursiveSearch(), GetSelectedFileAttributes(), MaxFileSize, selectedDate);
+            mainWindow.SearchArgs = args;
+            mainWindow.ShowDir();
             mainWindow.Show();
-            this.Close();
 
+            Console.WriteLine("{0} {1} {2} {3} {4}", args.DirPath, args.IsSearchRecursive, args.Attributes, args.FileSize, args.LastTime);
+            this.Close();
+        }
+
+        private void userDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.selectedDate = (DateTime)userDate.SelectedDate;
         }
     }
 }

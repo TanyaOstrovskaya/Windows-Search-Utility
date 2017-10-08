@@ -16,26 +16,27 @@ namespace MainUtility
         [ImportMany(AllowRecomposition = true)]
         IEnumerable<Lazy<IPlugin, IPluginData>> plugins;
 
-        private AggregateCatalog catalog;
-        private DirectoryCatalog dirCatalog;
+        private AggregateCatalog _catalog;
+        private DirectoryCatalog _dirCatalog;
         private CompositionContainer _container;
         private FileSystemWatcher watcher;
         private String path = Directory.GetCurrentDirectory() + "\\Extensions";
 
         public SearchArguments SearchArgs { get; set; }
 
+
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public MainWindow()
         {
             InitializeComponent();
 
-            catalog = new AggregateCatalog();
+            _catalog = new AggregateCatalog();
            
 
             watcher = new FileSystemWatcher();
             watcher.Path = path;
             watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-           | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+                | NotifyFilters.FileName | NotifyFilters.DirectoryName;
 
             watcher.Filter = "*.dll";
             watcher.Changed += new FileSystemEventHandler(OnExtensionCatalogChanged);
@@ -45,38 +46,25 @@ namespace MainUtility
 
             watcher.EnableRaisingEvents = true;
 
-            dirCatalog = new DirectoryCatalog(path);
+            _dirCatalog = new DirectoryCatalog(path);
 
             ComposeExtensions();
-
-                      
+            SearchArgs = new SearchArguments();
         }
 
-        // Define the event handlers.
-        private static void OnChanged(object source, FileSystemEventArgs e)
-        {
-            // Specify what is done when a file is changed, created, or deleted.
-            Console.WriteLine("File: " + e.FullPath + " " + e.ChangeType);
-        }
-
+       
         private static void OnRenamed(object source, RenamedEventArgs e)
-        {
-            // Specify what is done when a file is renamed.
+        {            
             Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
         }
 
         private void ComposeExtensions ()
         {
-            catalog = new AggregateCatalog();
+            _catalog = new AggregateCatalog();
+            _catalog.Catalogs.Add(new AssemblyCatalog(typeof(SearchArguments).Assembly));            
+            _catalog.Catalogs.Add(_dirCatalog);
+            _container = new CompositionContainer(_catalog);
 
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(SearchArguments).Assembly));
-            
-            catalog.Catalogs.Add(dirCatalog);
-
-            //Create the CompositionContainer with the parts in the catalog
-            _container = new CompositionContainer(catalog);
-
-            //Fill the imports of this object
             try
             {
                 this._container.ComposeParts(this);
@@ -85,8 +73,7 @@ namespace MainUtility
             {
                 Console.WriteLine(compositionException.ToString());
             }
-
-
+            
             Dispatcher.BeginInvoke(new ThreadStart(delegate
             {
                 pluginNamesListBox.Items.Clear();
@@ -104,23 +91,23 @@ namespace MainUtility
             }));
         }
 
+        public void ShowDir()
+        {
+            this.currentDirName.Content = SearchArgs.DirPath;
+        }
+
         private void AddPluginCheckBox(string extension)
         {
             pluginNamesListBox.Items.Add(extension);
         }
 
-        private void FillPluginNamesStackPanel ()
-        {
-            
-        }
 
         private void OnExtensionCatalogChanged(object source, FileSystemEventArgs e)
         {
             Console.WriteLine("Directory modified");
-            dirCatalog.Refresh();
+            _dirCatalog.Refresh();
 
             ComposeExtensions();
-
 
         }
 

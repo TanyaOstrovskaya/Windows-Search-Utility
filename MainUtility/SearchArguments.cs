@@ -5,17 +5,22 @@ namespace MainUtility
 {
     public class SearchArguments
     {
-        public String DirPath { get; private set; }
-        public bool IsSearchRecursive { get; private set; }
-        public FileAttributes Attributes { get; private set; } 
+        public String DirPath { get;  set; }
+        public bool IsSearchRecursive { get;  set; }
+        public FileAttributes Attributes { get;  set; } 
+        public long FileSize { get; set;  }
+        public DateTime LastTime { get; set; }
+
 
         public SearchArguments() { }
 
-        public SearchArguments(string dirPath, bool isSearchRecursive, FileAttributes attributes)
+        public SearchArguments(string dirPath, bool isSearchRecursive, FileAttributes attributes, long fileSize, DateTime lastTime)
         {
             DirPath = dirPath;
             IsSearchRecursive = isSearchRecursive;
             Attributes = attributes;
+            FileSize = fileSize;
+            LastTime = lastTime;
         }
     }
 }
