@@ -65,7 +65,7 @@
         <Slider x:Name="fileSizeSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Minimum="0" Maximum="1048756" ValueChanged="fileSizeSlider_ValueChanged" Grid.Row="15" Grid.Column="1" Grid.ColumnSpan="5" Value="15"></Slider>
         <Label x:Name="label" Grid.Row="15" Grid.Column="7" ></Label>
         <Label Grid.Row="17" Grid.Column="1" Grid.ColumnSpan="7" Margin="0,4,0,2" Grid.RowSpan="2"> 5. Искать файлы, созданные не позднее чем:</Label>
-        <DatePicker Grid.Row="19" Grid.Column="1" Grid.ColumnSpan="3"></DatePicker>
+        <DatePicker x:Name="datePicker" SelectedDateChanged="DatePicker_SelectedDateChanged" Grid.Row="19" Grid.Column="1" Grid.ColumnSpan="3"></DatePicker>
         <Button Click="Button_Click" Grid.Row="22" Grid.Column="7">Начать поиск</Button>
         
     </Grid>

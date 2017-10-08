@@ -8,10 +8,7 @@ namespace MainUtility
 {
     public partial class FirstWindow : Window
     {
-        private string CurrentDir { get; set; }
-        private int MaxFileSize { get; set; }
-        public string Size { get; set; }
-
+        private SearchArguments selectedArgs { get; set; }
 
         public FirstWindow()
         {
@@ -24,19 +21,19 @@ namespace MainUtility
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                this.CurrentDir = dialog.SelectedPath;
+                this.selectedArgs.DirPath = dialog.SelectedPath;
                 this.InputDirBlock.Text = dialog.SelectedPath;
             }
         }
 
         private void InputDirBlock_DataContextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            this.CurrentDir = InputDirBlock.Text;
+            this.selectedArgs.DirPath = InputDirBlock.Text;
         }
 
         private void fileSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<Double> e)
         {
-            this.MaxFileSize = (int)fileSizeSlider.Value;
+            this.selectedArgs.Length = (int)fileSizeSlider.Value * 1024;
         }
 
         private bool GetCheckedRecursiveSearch ()
@@ -75,11 +72,23 @@ namespace MainUtility
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.SearchArgs = new SearchArguments(CurrentDir, GetCheckedRecursiveSearch(), GetSelectedFileAttributes());
-            mainWindow.Show();
-            this.Close();
+            if (ValidateSelectedArgs())
+            {
+                MainWindow mainWindow = new MainWindow();
+                mainWindow.SearchArgs = selectedArgs;
+                mainWindow.Show();
+                this.Close();
+            }
+        }
 
+        private bool ValidateSelectedArgs()
+        {
+            return true;
+        }
+
+        private void DatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.selectedArgs.LastDate = (DateTime)this.datePicker.SelectedDate;
         }
     }
 }

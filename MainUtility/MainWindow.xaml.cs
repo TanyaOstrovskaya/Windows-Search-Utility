@@ -16,49 +16,40 @@ namespace MainUtility
         [ImportMany(AllowRecomposition = true)]
         IEnumerable<Lazy<IPlugin, IPluginData>> plugins;
 
-        private AggregateCatalog catalog;
-        private DirectoryCatalog dirCatalog;
+        private AggregateCatalog _catalog;
+        private DirectoryCatalog _dirCatalog;
         private CompositionContainer _container;
-        private FileSystemWatcher watcher;
-        private String path = Directory.GetCurrentDirectory() + "\\Extensions";
+        private FileSystemWatcher _watcher;
+        private String _dirCatalogPath; 
 
         public SearchArguments SearchArgs { get; set; }
 
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent();          
 
-            catalog = new AggregateCatalog();
-           
+            _dirCatalogPath = Directory.GetCurrentDirectory() + "\\Extensions";
+            _dirCatalog = new DirectoryCatalog(_dirCatalogPath);
 
-            watcher = new FileSystemWatcher();
-            watcher.Path = path;
-            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-           | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-
-            watcher.Filter = "*.dll";
-            watcher.Changed += new FileSystemEventHandler(OnExtensionCatalogChanged);
-            watcher.Created += new FileSystemEventHandler(OnExtensionCatalogChanged);
-            watcher.Deleted += new FileSystemEventHandler(OnExtensionCatalogChanged);
-            watcher.Renamed += new RenamedEventHandler(OnRenamed);
-
-            watcher.EnableRaisingEvents = true;
-
-            dirCatalog = new DirectoryCatalog(path);
-
-            ComposeExtensions();
-
-                      
+            InitDirWatcher();
+            ComposeExtensions();                      
         }
 
-        // Define the event handlers.
-        private static void OnChanged(object source, FileSystemEventArgs e)
+        private void InitDirWatcher ()
         {
-            // Specify what is done when a file is changed, created, or deleted.
-            Console.WriteLine("File: " + e.FullPath + " " + e.ChangeType);
+            _watcher = new FileSystemWatcher();
+            _watcher.Path = _dirCatalogPath;
+            _watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
+           | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            _watcher.Filter = "*.dll";
+            _watcher.Changed += new FileSystemEventHandler(OnExtensionCatalogChanged);
+            _watcher.Created += new FileSystemEventHandler(OnExtensionCatalogChanged);
+            _watcher.Deleted += new FileSystemEventHandler(OnExtensionCatalogChanged);
+            _watcher.Renamed += new RenamedEventHandler(OnRenamed); 
+            _watcher.EnableRaisingEvents = true;
         }
-
+    
         private static void OnRenamed(object source, RenamedEventArgs e)
         {
             // Specify what is done when a file is renamed.
@@ -67,16 +58,11 @@ namespace MainUtility
 
         private void ComposeExtensions ()
         {
-            catalog = new AggregateCatalog();
+            _catalog = new AggregateCatalog();
+            _catalog.Catalogs.Add(new AssemblyCatalog(typeof(SearchArguments).Assembly));            
+            _catalog.Catalogs.Add(_dirCatalog);
+            _container = new CompositionContainer(_catalog);
 
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(SearchArguments).Assembly));
-            
-            catalog.Catalogs.Add(dirCatalog);
-
-            //Create the CompositionContainer with the parts in the catalog
-            _container = new CompositionContainer(catalog);
-
-            //Fill the imports of this object
             try
             {
                 this._container.ComposeParts(this);
@@ -86,7 +72,6 @@ namespace MainUtility
                 Console.WriteLine(compositionException.ToString());
             }
 
-
             Dispatcher.BeginInvoke(new ThreadStart(delegate
             {
                 pluginNamesListBox.Items.Clear();
@@ -94,13 +79,8 @@ namespace MainUtility
                 foreach (Lazy<IPlugin, IPluginData> i in plugins)
                 {
                     AddPluginCheckBox(i.Metadata.Extension);
-
-                    //if (i.Metadata.Extension.Equals("txt"))
-                    //{
-                    //    i.Value.FindFilesByParams(new SearchArguments("C:\\Users\\user\\Desktop\\txt_folder\\papka", false, FileAttributes.Archive));
-                    //    FilesList.ItemsSource = i.Value.searchResult;
-                    //}
                 }
+
             }));
         }
 
@@ -109,19 +89,11 @@ namespace MainUtility
             pluginNamesListBox.Items.Add(extension);
         }
 
-        private void FillPluginNamesStackPanel ()
-        {
-            
-        }
-
         private void OnExtensionCatalogChanged(object source, FileSystemEventArgs e)
         {
             Console.WriteLine("Directory modified");
-            dirCatalog.Refresh();
-
+            _dirCatalog.Refresh();
             ComposeExtensions();
-
-
         }
 
     }
