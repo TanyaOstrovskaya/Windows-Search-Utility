@@ -1,23 +1,21 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.Composition;
 using MainUtility;
+using System.IO;
 
-namespace PluginTxt
+namespace PluginDoc
 {
     [Export(typeof(MainUtility.IPlugin))]
-    [ExportMetadata("Extension", "txt")]
-    public class SearcherTxt : MainUtility.IPlugin
+    [ExportMetadata("Extension", "doc")]
+    public class SearcherDoc : MainUtility.IPlugin
     {
         public List<string> searchResult { get; set; }
         private bool _isSearchStoppedByUser { get; set; }
         private SearchArguments _args;
-
-        public SearcherTxt() { }
 
         public bool FindFilesByParams(SearchArguments args)
         {
@@ -33,6 +31,7 @@ namespace PluginTxt
 
             return true;
         }
+
 
         private void SearchDir(string dirPath)
         {
@@ -78,9 +77,9 @@ namespace PluginTxt
         private bool CheckAllSearchParameters(string file, FileAttributes searchAttributes)
         {
             FileAttributes fileAttr = File.GetAttributes(file);
-            if ((fileAttr.CompareTo (searchAttributes) == 0) && ( file != null ))
+            if ((fileAttr.CompareTo(searchAttributes) == 0) && (file != null))
                 return true;
-       
+
             return false;
         }
     }
