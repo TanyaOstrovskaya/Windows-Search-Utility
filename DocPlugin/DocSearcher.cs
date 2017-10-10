@@ -1,54 +1,76 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel.Composition;
 using MainUtility;
-using System.IO;
+using System.Windows.Controls;
+using System.Windows;
 
 namespace DocPlugin
 {
     [Export(typeof(MainUtility.IPlugin))]
     [ExportMetadata("Extension", "doc")]
-    public partial class UserControl1 : UserControl, MainUtility.IPlugin
+    public class DocSearcher : MainUtility.IPlugin
     {
-        private SearchArguments _args;
-        private bool _isSearchStoppedByUser { get; set; }
         public List<string> searchResult { get; set; }
-        public bool IsSearchInProgress { get; set; }
+        public UserControl userControl { get; set; }
 
+        private bool _isSearchStoppedByUser { get; set; }
+        private SearchArguments _args;
 
-        public UserControl1()
-        {
-            InitializeComponent();
+        public DocSearcher()
+        {         
         }
 
-        public UserControl FindFilesByParams(SearchArguments args)
+        public void InitPlugin(Window relativeWindow, SearchArguments args)
         {
-            return this;
+            this._args = args;            
+            userControl = new DocUserControl();
+            (userControl as DocUserControl).docTitle.Text = "helllllolo";
+            (userControl as DocUserControl).SearchStart  += new EventHandler(OnSearchButtonClick);
         }
 
-        private void searchButton_Click(object sender, RoutedEventArgs e)
-        {
-            IsSearchInProgress = true;
+        public event EventHandler SearchEnd;
 
-            var dirPath = _args.DirPath;
-            if (_args.IsSearchRecursive)
+        protected virtual void OnSearchEnded()
+        {
+            if (SearchEnd != null) SearchEnd(this, EventArgs.Empty);
+        }
+
+        private void OnSearchButtonClick(object sender, EventArgs e)
+        {
+            /*
+
+            1. get params from text fields
+            2. validate them
+            3. do search
+            4. event "Search stopped"
+            5. relative window will handle it
+                       
+            */
+
+            FindFilesByParams(_args);
+
+            OnSearchEnded();
+
+        }
+
+        public bool FindFilesByParams(SearchArguments args)
+        {
+            _isSearchStoppedByUser = false;
+            _args = args;
+
+            var dirPath = args.DirPath;
+
+            if (args.IsSearchRecursive)
                 SearchDirRecursively(dirPath);
             else
                 SearchDir(dirPath);
 
-            IsSearchInProgress = false;
+            return true;
         }
 
         private void SearchDir(string dirPath)
@@ -105,4 +127,3 @@ namespace DocPlugin
         }
     }
 }
-

@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Security.Permissions;
 using System.Threading;
+using System.ComponentModel;
 
 namespace MainUtility
 {
@@ -20,7 +21,8 @@ namespace MainUtility
         private DirectoryCatalog _dirCatalog;
         private CompositionContainer _container;
         private FileSystemWatcher _watcher;
-        private String path = Directory.GetCurrentDirectory() + "\\Extensions";
+        private String path = AppDomain.CurrentDomain.BaseDirectory;
+        private UserControl currControl;
 
         public SearchArguments SearchArgs { get; set; }
 
@@ -79,13 +81,7 @@ namespace MainUtility
                 pluginNamesListBox.Items.Clear();
                 foreach (Lazy<IPlugin, IPluginData> i in plugins)
                 {
-                    AddPluginCheckBox(i.Metadata.Extension);
-
-                    if (i.Metadata.Extension.Equals("doc"))
-                    {
-                        i.Value.FindFilesByParams(SearchArgs);
-                        FilesList.ItemsSource = i.Value.searchResult;
-                    }
+                    pluginNamesListBox.Items.Add( i.Metadata.Extension);
                 }
             }));
         }
@@ -94,12 +90,6 @@ namespace MainUtility
         {
             this.currentDirName.Content = SearchArgs.DirPath;
         }
-
-        private void AddPluginCheckBox(string extension)
-        {
-            pluginNamesListBox.Items.Add(extension);
-        }
-
 
         private void OnExtensionCatalogChanged(object source, FileSystemEventArgs e)
         {
@@ -113,22 +103,32 @@ namespace MainUtility
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
             String pliginName = pluginNamesListBox.SelectedItem.ToString();
-            Dispatcher.BeginInvoke(new ThreadStart(delegate
-            {                
-                foreach (Lazy<IPlugin, IPluginData> i in plugins)
+            foreach (Lazy<IPlugin, IPluginData> i in plugins)
+            {
+                if (i.Metadata.Extension.Equals(pliginName))
                 {
-                    if (i.Metadata.Extension.Equals(pliginName))
-                    {
-                        Window window = new Window();
-                        StackPanel panel = new StackPanel();                     
-                        UserControl control = i.Value.FindFilesByParams(SearchArgs);
-                        panel.Children.Add(control);
-                        window.Content = panel;
-                        window.Show();
-                    }
+                    i.Value.InitPlugin(this, SearchArgs);
+
+                    PluginWindow pluginWindow = new PluginWindow();
+                    Panel pluginPanel = new StackPanel();
+                    pluginPanel.Children.Add(i.Value.userControl);                    
+                    pluginWindow.Content = pluginPanel;
+
+                    i.Value.SearchEnd += new EventHandler(HandleSearchEnd);
+
+                    pluginWindow.Show();
                 }
-            }));
+            }
 
         }
+
+        private void HandleSearchEnd(object sender, EventArgs e)
+        {
+            FilesList.Items.Clear();
+            FilesList.ItemsSource = (sender as MainUtility.IPlugin).searchResult;
+            FilesList.UpdateLayout();
+        }      
+
+
     }
 }

@@ -5,14 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows;
 
 namespace MainUtility
 {
     public interface IPlugin
     {
-        UserControl FindFilesByParams(SearchArguments args);
+        event EventHandler SearchEnd;
+
         List<String> searchResult { get; set; }
-        bool IsSearchInProgress { get; set; }
+        UserControl userControl { get; set; }
+            
+        void InitPlugin(Window reletiveWindow, SearchArguments args);
+        bool FindFilesByParams(SearchArguments args);
     }
 
     public interface IPluginData
