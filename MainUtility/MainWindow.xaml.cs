@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Security.Permissions;
 using System.Threading;
 using System.ComponentModel;
+using System.Collections.ObjectModel;
 
 namespace MainUtility
 {
@@ -117,7 +118,8 @@ namespace MainUtility
                     pluginWindow.Height = i.Value.userControl.Height + 40;
                    
 
-                    i.Value.SearchEnd += new EventHandler(HandleSearchEnd);
+                    i.Value.NewItemFound += new EventHandler(HandleNewItemFound);
+                    FilesList.Items.Clear();               
 
                     pluginWindow.Show();
                 }
@@ -125,9 +127,17 @@ namespace MainUtility
 
         }
 
-        private void HandleSearchEnd(object sender, EventArgs e)
+        private void HandleNewItemFound(object sender, EventArgs e)
         {
-            FilesList.ItemsSource = (sender as MainUtility.IPlugin).searchResult;
+            if (FilesList.Items.Count == 0)
+            {
+                FilesList.Items.Add((sender as MainUtility.IPlugin).searchResult[0]);
+            } else
+            {
+                int index = (sender as MainUtility.IPlugin).searchResult.Count - 1;
+                FilesList.Items.Add((sender as MainUtility.IPlugin).searchResult[index]);
+            }
+            
             FilesList.UpdateLayout();
         }      
 

@@ -48,8 +48,8 @@ namespace MainUtility
             FileAttributes result = new FileAttributes();
             foreach (CheckBox chBox in attribitesStackPanel.Children)
             {
-                if ((bool)chBox.IsChecked)                
-                    result |= FileAttributes.Archive;              
+                if ((bool)chBox.IsChecked)
+                    result |= GetFileAttributeNumberByName(chBox.Content.ToString());
             }
 
             return result;

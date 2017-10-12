@@ -12,7 +12,7 @@ namespace MainUtility
 {
     public interface IPlugin
     {
-        event EventHandler SearchEnd;
+        event EventHandler NewItemFound;
 
         ObservableCollection<String> searchResult { get; set; }
         UserControl userControl { get; set; }

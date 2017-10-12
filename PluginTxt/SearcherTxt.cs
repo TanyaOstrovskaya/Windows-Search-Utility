@@ -21,6 +21,7 @@ namespace PluginTxt
 
         private bool _isSearchStoppedByUser { get; set; }
         private SearchArguments _args;
+        private int counter;
 
         public SearcherTxt()
         {
@@ -33,11 +34,11 @@ namespace PluginTxt
             (userControl as TxtUserControl).SearchStart += new EventHandler(OnSearchButtonClick);
         }
 
-        public event EventHandler SearchEnd;
+        public event EventHandler NewItemFound;
 
-        protected virtual void OnSearchEnded()
+        protected virtual void OnNewItemFound()
         {
-            if (SearchEnd != null) SearchEnd(this, EventArgs.Empty);
+            if (NewItemFound != null) NewItemFound(this, EventArgs.Empty);
         }
 
         private void OnSearchButtonClick(object sender, EventArgs e)
@@ -54,7 +55,7 @@ namespace PluginTxt
 
             FindFilesByParams(_args);
 
-            OnSearchEnded();
+           
 
         }
 
@@ -82,7 +83,11 @@ namespace PluginTxt
                 {
                     FileInfo fInfo = new FileInfo(file);
                     if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0) && (fInfo.Length < _args.FileSize))
+                    {
                         searchResult.Add(file);
+                        ++counter;
+                        OnNewItemFound();
+                    }
                     if (_isSearchStoppedByUser)
                         return;
                 }
@@ -104,7 +109,10 @@ namespace PluginTxt
                     {
                         FileInfo fInfo = new FileInfo(file);
                         if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0) && (fInfo.Length < _args.FileSize))
+                        {
                             searchResult.Add(file);
+                            OnNewItemFound();
+                        }
                         if (_isSearchStoppedByUser)
                             return;
                     }
