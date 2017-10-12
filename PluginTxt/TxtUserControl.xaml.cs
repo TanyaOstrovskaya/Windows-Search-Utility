@@ -23,8 +23,21 @@ namespace PluginTxt
         }
 
         public event EventHandler SearchStart;
-         
-        public string searchTxtSubstring { get; set; }
+
+
+        private string searchSubstrText; 
+        public string SearchSubstrText
+        {
+            get
+            {
+                searchSubstrText = new TextRange(SubstringTextBox.Document.ContentStart, SubstringTextBox.Document.ContentEnd).Text;
+                return searchSubstrText;
+            }
+            set
+            {
+                searchSubstrText = value;
+            }
+        }
 
         protected virtual void OnSearchStart()
         {
@@ -33,7 +46,6 @@ namespace PluginTxt
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            searchTxtSubstring = new TextRange(SearchSubstringText.Document.ContentStart, SearchSubstringText.Document.ContentEnd).Text;
             OnSearchStart();
         }
     }

@@ -21,6 +21,7 @@ namespace PluginTxt
 
         private bool _isSearchStoppedByUser { get; set; }
         private SearchArguments _args;
+        private int counter;
 
         public SearcherTxt()
         {
@@ -33,11 +34,11 @@ namespace PluginTxt
             (userControl as TxtUserControl).SearchStart += new EventHandler(OnSearchButtonClick);
         }
 
-        public event EventHandler SearchEnd;
+        public event EventHandler NewItemFound;
 
-        protected virtual void OnSearchEnded()
+        protected virtual void OnNewItemFound()
         {
-            if (SearchEnd != null) SearchEnd(this, EventArgs.Empty);
+            if (NewItemFound != null) NewItemFound(this, EventArgs.Empty);
         }
 
         private void OnSearchButtonClick(object sender, EventArgs e)
@@ -53,9 +54,6 @@ namespace PluginTxt
             */
 
             FindFilesByParams(_args);
-
-            OnSearchEnded();
-
         }
 
         public bool FindFilesByParams(SearchArguments args)
@@ -64,25 +62,31 @@ namespace PluginTxt
             _args = args;
 
             var dirPath = args.DirPath;
+            searchResult = new ObservableCollection<string>();
+            string substr = (userControl as TxtUserControl).SearchSubstrText.Trim();
 
             if (args.IsSearchRecursive)
-                SearchDirRecursively(dirPath);
+                SearchDirRecursively(dirPath, substr);
             else
-                SearchDir(dirPath);
+                SearchDir(dirPath, substr);
 
             return true;
         }
 
-        private void SearchDir(string dirPath)
+        private void SearchDir(string dirPath, string substr)
         {
-            searchResult = new ObservableCollection<string>();
             try
             {
                 foreach (string file in Directory.GetFiles(dirPath))
                 {
                     FileInfo fInfo = new FileInfo(file);
-                    if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0) && (fInfo.Length < _args.FileSize))
+                    if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0)
+                        && (fInfo.Length < _args.FileSize) && (CheckFileContainsSubstring(file, substr)))
+                    {
                         searchResult.Add(file);
+                        ++counter;
+                        OnNewItemFound();
+                    }
                     if (_isSearchStoppedByUser)
                         return;
                 }
@@ -93,22 +97,14 @@ namespace PluginTxt
             }
         }
 
-        private void SearchDirRecursively(string dirPath)
-        {
-            searchResult = new ObservableCollection<string>();
+        private void SearchDirRecursively (string dirPath, string substr)
+        {           
             try
             {
                 foreach (string dir in Directory.GetDirectories(dirPath))
                 {
-                    foreach (string file in Directory.GetFiles(dir))
-                    {
-                        FileInfo fInfo = new FileInfo(file);
-                        if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0) && (fInfo.Length < _args.FileSize))
-                            searchResult.Add(file);
-                        if (_isSearchStoppedByUser)
-                            return;
-                    }
-                    SearchDirRecursively(dir);
+                    SearchDir(dir, substr); 
+                    SearchDirRecursively(dir, substr);
                 }
             }
             catch (System.Exception ex)
@@ -116,6 +112,17 @@ namespace PluginTxt
                 Console.WriteLine(ex.StackTrace);
             }
         }
+
+        private bool CheckFileContainsSubstring (string file, string substr)
+        {
+            foreach (string line in File.ReadLines(file))
+            {
+                if (line.Contains(substr))
+                    return true;                
+            }
+            return false;
+        }
+
 
         private bool CheckAllSearchParameters(string file, FileAttributes searchAttributes)
         {

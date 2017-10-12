@@ -48,8 +48,8 @@ namespace MainUtility
             FileAttributes result = new FileAttributes();
             foreach (CheckBox chBox in attribitesStackPanel.Children)
             {
-                if ((bool)chBox.IsChecked)                
-                    result |= FileAttributes.Archive;              
+                if ((bool)chBox.IsChecked)
+                    result |= GetFileAttributeNumberByName(chBox.Content.ToString());
             }
 
             return result;
@@ -78,7 +78,6 @@ namespace MainUtility
   
             SearchArguments args = new SearchArguments(CurrentDir, GetCheckedRecursiveSearch(), GetSelectedFileAttributes(), MaxFileSize, selectedDate);
             mainWindow.SearchArgs = args;
-            mainWindow.ShowDir();
             mainWindow.Show();
 
             Console.WriteLine("{0} {1} {2} {3} {4}", args.DirPath, args.IsSearchRecursive, args.Attributes, args.FileSize, args.LastTime);

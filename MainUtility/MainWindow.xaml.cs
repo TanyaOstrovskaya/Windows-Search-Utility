@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Security.Permissions;
 using System.Threading;
 using System.ComponentModel;
+using System.Collections.ObjectModel;
 
 namespace MainUtility
 {
@@ -21,25 +22,30 @@ namespace MainUtility
         private DirectoryCatalog _dirCatalog;
         private CompositionContainer _container;
         private FileSystemWatcher _watcher;
-        private String path = AppDomain.CurrentDomain.BaseDirectory;
+        private SearchArguments searchArgs;
 
 
-        public SearchArguments SearchArgs { get; set; }
+        public SearchArguments SearchArgs {
+            get { return searchArgs; }
+            set
+            {
+                this.searchArgs = value;
+                this.currentDirName.Content = SearchArgs.DirPath;
+            }
+        }
 
 
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public MainWindow()
         {
             InitializeComponent();
+            string appPath = AppDomain.CurrentDomain.BaseDirectory;
 
-            _catalog = new AggregateCatalog();
-           
+            _catalog = new AggregateCatalog();     
 
             _watcher = new FileSystemWatcher();
-            _watcher.Path = path;
-            _watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-                | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-
+            _watcher.Path = appPath;
+            _watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite  | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             _watcher.Filter = "*.dll";
             _watcher.Changed += new FileSystemEventHandler(OnExtensionCatalogChanged);
             _watcher.Created += new FileSystemEventHandler(OnExtensionCatalogChanged);
@@ -47,7 +53,7 @@ namespace MainUtility
             _watcher.Renamed += new RenamedEventHandler(OnRenamed);
             _watcher.EnableRaisingEvents = true;
 
-            _dirCatalog = new DirectoryCatalog(path);
+            _dirCatalog = new DirectoryCatalog(appPath);
 
             ComposeExtensions();
             SearchArgs = new SearchArguments();
@@ -84,20 +90,12 @@ namespace MainUtility
                     pluginNamesListBox.Items.Add( i.Metadata.Extension);
                 }
             }));
-        }
-
-        public void ShowDir()
-        {
-            this.currentDirName.Content = SearchArgs.DirPath;
-        }
+        }   
 
         private void OnExtensionCatalogChanged(object source, FileSystemEventArgs e)
         {
-            Console.WriteLine("Directory modified");
             _dirCatalog.Refresh();
-
             ComposeExtensions();
-
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -113,24 +111,28 @@ namespace MainUtility
                     Panel pluginPanel = new StackPanel();
                     pluginPanel.Children.Add(i.Value.userControl);                    
                     pluginWindow.Content = pluginPanel;
-                    pluginWindow.Width = i.Value.userControl.Width+40;
+                    pluginWindow.Width = i.Value.userControl.Width + 40;
                     pluginWindow.Height = i.Value.userControl.Height + 40;
-                   
-
-                    i.Value.SearchEnd += new EventHandler(HandleSearchEnd);
+                    i.Value.NewItemFound += new EventHandler(HandleNewItemFound);
+                    FilesList.Items.Clear();               
 
                     pluginWindow.Show();
                 }
             }
-
         }
 
-        private void HandleSearchEnd(object sender, EventArgs e)
+        private void HandleNewItemFound(object sender, EventArgs e)
         {
-            FilesList.ItemsSource = (sender as MainUtility.IPlugin).searchResult;
+            if (FilesList.Items.Count == 0)
+            {
+                FilesList.Items.Add((sender as MainUtility.IPlugin).searchResult[0]);
+            } else
+            {
+                int index = (sender as MainUtility.IPlugin).searchResult.Count - 1;
+                FilesList.Items.Add((sender as MainUtility.IPlugin).searchResult[index]);
+            }
+            
             FilesList.UpdateLayout();
-        }      
-
-
+        }
     }
 }

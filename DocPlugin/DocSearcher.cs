@@ -34,11 +34,11 @@ namespace DocPlugin
             (userControl as DocUserControl).SearchStart  += new EventHandler(OnSearchButtonClick);
         }
 
-        public event EventHandler SearchEnd;
+        public event EventHandler NewItemFound;
 
-        protected virtual void OnSearchEnded()
+        protected virtual void OnNewItemFound()
         {
-            if (SearchEnd != null) SearchEnd(this, EventArgs.Empty);
+            if (NewItemFound != null) NewItemFound(this, EventArgs.Empty);
         }
 
         private void OnSearchButtonClick(object sender, EventArgs e)
@@ -53,9 +53,7 @@ namespace DocPlugin
                        
             */
 
-            FindFilesByParams(_args);
-
-            OnSearchEnded();
+            FindFilesByParams(_args);            
 
         }
 
@@ -77,13 +75,17 @@ namespace DocPlugin
         private void SearchDir(string dirPath)
         {
             searchResult = new ObservableCollection<string>();
+
             try
             {
                 foreach (string file in Directory.GetFiles(dirPath))
                 {
                     FileInfo fInfo = new FileInfo(file);
                     if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0) && (fInfo.Length < _args.FileSize))
+                    {
                         searchResult.Add(file);
+                        OnNewItemFound();
+                    }
                     if (_isSearchStoppedByUser)
                         return;
                 }
@@ -105,7 +107,10 @@ namespace DocPlugin
                     {
                         FileInfo fInfo = new FileInfo(file);
                         if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0) && (fInfo.Length < _args.FileSize))
+                        {
                             searchResult.Add(file);
+                            OnNewItemFound();
+                        }
                         if (_isSearchStoppedByUser)
                             return;
                     }

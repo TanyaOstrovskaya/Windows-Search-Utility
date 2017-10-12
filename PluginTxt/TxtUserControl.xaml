@@ -27,7 +27,7 @@
         </Grid.ColumnDefinitions>
 
         <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">Введите подстроку в искомых файлах:</Label>
-        <RichTextBox x:Name="SearchSubstringText" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" ></RichTextBox>
+        <RichTextBox x:Name="SubstringTextBox" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" ></RichTextBox>
         <Button x:Name="SearchButton" Click="SearchButton_Click" Grid.Row="5" Grid.Column="2">ИСКАТЬ</Button>
     </Grid>
 </UserControl>
