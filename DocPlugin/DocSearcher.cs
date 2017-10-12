@@ -8,6 +8,7 @@ using System.ComponentModel.Composition;
 using MainUtility;
 using System.Windows.Controls;
 using System.Windows;
+using System.Collections.ObjectModel;
 
 namespace DocPlugin
 {
@@ -15,7 +16,7 @@ namespace DocPlugin
     [ExportMetadata("Extension", "doc")]
     public class DocSearcher : MainUtility.IPlugin
     {
-        public List<string> searchResult { get; set; }
+        public ObservableCollection<string> searchResult { get; set; }
         public UserControl userControl { get; set; }
 
         private bool _isSearchStoppedByUser { get; set; }
@@ -75,7 +76,7 @@ namespace DocPlugin
 
         private void SearchDir(string dirPath)
         {
-            searchResult = new List<string>();
+            searchResult = new ObservableCollection<string>();
             try
             {
                 foreach (string file in Directory.GetFiles(dirPath))
@@ -95,7 +96,7 @@ namespace DocPlugin
 
         private void SearchDirRecursively(string dirPath)
         {
-            searchResult = new List<string>();
+            searchResult = new ObservableCollection<string>();
             try
             {
                 foreach (string dir in Directory.GetDirectories(dirPath))

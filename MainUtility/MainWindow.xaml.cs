@@ -22,7 +22,7 @@ namespace MainUtility
         private CompositionContainer _container;
         private FileSystemWatcher _watcher;
         private String path = AppDomain.CurrentDomain.BaseDirectory;
-        private UserControl currControl;
+
 
         public SearchArguments SearchArgs { get; set; }
 
@@ -102,17 +102,20 @@ namespace MainUtility
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            String pliginName = pluginNamesListBox.SelectedItem.ToString();
+            String pluginName = pluginNamesListBox.SelectedItem.ToString();
             foreach (Lazy<IPlugin, IPluginData> i in plugins)
             {
-                if (i.Metadata.Extension.Equals(pliginName))
+                if (i.Metadata.Extension.Equals(pluginName))
                 {
                     i.Value.InitPlugin(this, SearchArgs);
 
-                    PluginWindow pluginWindow = new PluginWindow();
+                    Window pluginWindow = new Window();
                     Panel pluginPanel = new StackPanel();
                     pluginPanel.Children.Add(i.Value.userControl);                    
                     pluginWindow.Content = pluginPanel;
+                    pluginWindow.Width = i.Value.userControl.Width+40;
+                    pluginWindow.Height = i.Value.userControl.Height + 40;
+                   
 
                     i.Value.SearchEnd += new EventHandler(HandleSearchEnd);
 
@@ -124,7 +127,6 @@ namespace MainUtility
 
         private void HandleSearchEnd(object sender, EventArgs e)
         {
-            FilesList.Items.Clear();
             FilesList.ItemsSource = (sender as MainUtility.IPlugin).searchResult;
             FilesList.UpdateLayout();
         }      

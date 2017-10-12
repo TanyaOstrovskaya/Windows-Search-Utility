@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows;
+using System.Collections.ObjectModel;
 
 namespace MainUtility
 {
@@ -13,7 +14,7 @@ namespace MainUtility
     {
         event EventHandler SearchEnd;
 
-        List<String> searchResult { get; set; }
+        ObservableCollection<String> searchResult { get; set; }
         UserControl userControl { get; set; }
             
         void InitPlugin(Window reletiveWindow, SearchArguments args);

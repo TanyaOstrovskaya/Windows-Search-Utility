@@ -87,19 +87,12 @@
     <Compile Include="FirstWindow.xaml.cs">
       <DependentUpon>FirstWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PluginWindow.xaml.cs">
-      <DependentUpon>PluginWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="SearchArguments.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="PluginWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
