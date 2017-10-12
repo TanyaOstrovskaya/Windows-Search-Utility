@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="PluginTxt.TxtUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PluginTxt"
+             Background="LightGray"
+             mc:Ignorable="d" 
+             FontSize="19"
+             Width="400" Height="300"
+             d:DesignHeight="300" d:DesignWidth="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="5"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="5"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">Введите подстроку в искомых файлах:</Label>
+        <RichTextBox x:Name="SearchSubstringText" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" ></RichTextBox>
+        <Button x:Name="SearchButton" Click="SearchButton_Click" Grid.Row="5" Grid.Column="2">ИСКАТЬ</Button>
+    </Grid>
+</UserControl>
