@@ -9,6 +9,9 @@ using MainUtility;
 using System.Windows.Controls;
 using System.Windows;
 using System.Collections.ObjectModel;
+using Microsoft.Office.Core;
+using Microsoft.Office.Interop;
+
 
 namespace DocPlugin
 {
@@ -23,15 +26,15 @@ namespace DocPlugin
         private SearchArguments _args;
 
         public DocSearcher()
-        {         
+        {
+
         }
 
-        public void InitPlugin(Window relativeWindow, SearchArguments args)
+        public void InitPlugin(System.Windows.Window relativeWindow, SearchArguments args)
         {
-            this._args = args;            
+            this._args = args;
             userControl = new DocUserControl();
-            (userControl as DocUserControl).docTitle.Text = "helllllolo";
-            (userControl as DocUserControl).SearchStart  += new EventHandler(OnSearchButtonClick);
+            (userControl as DocUserControl).SearchStart += new EventHandler(OnSearchButtonClick);
         }
 
         public event EventHandler NewItemFound;
@@ -53,12 +56,15 @@ namespace DocPlugin
                        
             */
 
-            FindFilesByParams(_args);            
+            FindFilesByParams(_args);
 
         }
 
         public bool FindFilesByParams(SearchArguments args)
         {
+
+            CheckDocFileProperties(@"C:\Users\user\Documents\Учеба\cv.doc");
+
             _isSearchStoppedByUser = false;
             _args = args;
 
@@ -131,5 +137,89 @@ namespace DocPlugin
 
             return false;
         }
+
+        private bool CheckDocFileProperties(string file)
+        {
+            Microsoft.Office.Interop.Word.Application wordApp = new Microsoft.Office.Interop.Word.Application();
+
+            object isReadOnly = false;
+            object isVisible = true;
+            object saveChanges = false;
+            object missingValue = System.Reflection.Missing.Value;
+
+            Dictionary<string, string> properties = new Dictionary<string, string>()
+            {
+                {"Title", null },
+                {"Subject", null },
+                {"Author", null },
+                {"Manager", null },
+                {"Company", null }
+            };
+
+            object fileName = file;
+            wordApp.Visible = false;
+            Microsoft.Office.Interop.Word.Document wordDoc =
+                        wordApp.Documents.Open(ref fileName,
+                        ref missingValue, ref isReadOnly,
+                        ref missingValue, ref missingValue,
+                        ref missingValue, ref missingValue,
+                        ref missingValue, ref missingValue,
+                        ref missingValue, ref missingValue,
+                        ref isVisible);
+
+            object docProps = wordDoc.BuiltInDocumentProperties;
+            Type propertyType = docProps.GetType();
+            List<string> propKeys = properties.Keys.ToList();
+
+            foreach (var propKey in propKeys)
+            {
+                object property = propertyType.InvokeMember("Item",
+                    System.Reflection.BindingFlags.Default |
+                    System.Reflection.BindingFlags.GetProperty,
+                    null,
+                    docProps,
+                    new object[] { propKey });
+
+                Type validatedType = property.GetType();
+
+                string propValue = validatedType.InvokeMember("Value",
+                    System.Reflection.BindingFlags.Default |
+                    System.Reflection.BindingFlags.GetProperty,
+                    null,
+                    property,
+                    new object[] { }).ToString();
+
+                properties[propKey] = propValue;           
+            }
+
+            wordDoc.Close(ref saveChanges, ref missingValue, ref missingValue);           
+            wordApp.Quit(ref saveChanges, ref missingValue, ref missingValue);
+
+            return ComparePropsWithUserInput(properties);
+        }
+
+        private bool ComparePropsWithUserInput (Dictionary<string, string> props)
+        {
+            string userTitle = (userControl as DocUserControl).docTitle.Text;
+            string userSubject = (userControl as DocUserControl).docSubject.Text;
+            string userAuthor = (userControl as DocUserControl).docAuthor.Text;
+            string userManager = (userControl as DocUserControl).docManager.Text;
+            string userCompany = (userControl as DocUserControl).docOrganization.Text;
+
+            if ((userTitle.Equals(props["Title"]) || userTitle.Length == 0) &&
+                (userSubject.Equals(props["Subject"]) || userSubject.Length == 0) &&
+                (userAuthor.Equals(props["Author"]) || userAuthor.Length == 0) &&
+                (userManager.Equals(props["Manager"]) || userManager.Length == 0) &&
+                (userCompany.Equals(props["Company"]) || userCompany.Length == 0) )
+            {
+                return true;
+            } 
+            else
+            {
+                return false;
+            }
+        }
     }
 }
+
+
