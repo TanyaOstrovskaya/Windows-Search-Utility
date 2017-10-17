@@ -12,13 +12,14 @@ namespace MainUtility
 {
     public interface IPlugin
     {
-        event EventHandler NewItemFound;
+        ObservableCollection<String> pluginSearchResultList { get; set; }
+        UserControl pluginUserControl { get; set; }
+        bool isSearchStopped { get; set; }
 
-        ObservableCollection<String> searchResult { get; set; }
-        UserControl userControl { get; set; }
-            
         void InitPlugin(Window reletiveWindow, SearchArguments args);
         bool FindFilesByParams(SearchArguments args);
+
+        event EventHandler NewItemFound;    
     }
 
     public interface IPluginData
