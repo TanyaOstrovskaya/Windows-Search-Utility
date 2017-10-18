@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.ComponentModel;
 
 namespace PluginTxt
 {
@@ -21,15 +22,14 @@ namespace PluginTxt
         public UserControl pluginUserControl { get; set; }
         public bool isSearchStopped { get; set; }
 
-        private SearchArguments _args;
+        public SearchArguments _args;
 
         public SearcherTxt() { }
 
         public void InitPlugin(Window relativeWindow, SearchArguments args) 
         {
             this._args = args;
-            pluginUserControl = new TxtUserControl();       
-            (pluginUserControl as TxtUserControl).SearchStart += new EventHandler(OnSearchButtonClick);
+            pluginUserControl = new TxtUserControl(this);       
         }
 
         public event EventHandler NewItemFound;
@@ -40,13 +40,13 @@ namespace PluginTxt
                 NewItemFound(this, EventArgs.Empty);
         }
 
-        private void OnSearchButtonClick(object sender, EventArgs e)
+        public bool FindFilesByParams(SearchArguments args, BackgroundWorker worker, DoWorkEventArgs e)
         {
-            FindFilesByParams(_args);
-        }
+            if (worker.CancellationPending)
+            {
+                e.Cancel = true;
+            }
 
-        public bool FindFilesByParams(SearchArguments args)
-        {
             isSearchStopped = false;
             _args = args;
             var dirPath = args.DirPath;
@@ -54,14 +54,14 @@ namespace PluginTxt
             string substr = (pluginUserControl as TxtUserControl).SearchSubstrText.Trim();
 
             if (args.IsSearchRecursive)
-                SearchDirRecursively(dirPath, substr);
+                SearchDirRecursively(dirPath, substr, worker, e);
             else
-                SearchDir(dirPath, substr);
+                SearchDir(dirPath, substr, worker, e);
 
             return true;
         }
 
-        private void SearchDir(string dirPath, string substr)
+        private void SearchDir(string dirPath, string substr, BackgroundWorker worker, DoWorkEventArgs e)
         {
             try
             {
@@ -76,8 +76,13 @@ namespace PluginTxt
                         pluginSearchResultList.Add(file);
                         OnNewItemFound();
                     }
-                    if (isSearchStopped)
+                    if (worker.CancellationPending)
+                    {
+                        e.Cancel = true;
                         return;
+                    }
+                    Thread.Sleep(100);
+
                 }
             }
             catch (Exception ex)
@@ -86,14 +91,14 @@ namespace PluginTxt
             }
         }
 
-        private void SearchDirRecursively (string dirPath, string substr)
+        private void SearchDirRecursively (string dirPath, string substr, BackgroundWorker worker, DoWorkEventArgs e)
         {           
             try
             {
                 foreach (string dir in Directory.GetDirectories(dirPath))
                 {
-                    SearchDir(dir, substr); 
-                    SearchDirRecursively(dir, substr);
+                    SearchDir(dir, substr, worker, e); 
+                    SearchDirRecursively(dir, substr, worker, e);
                 }
             }
             catch (System.Exception ex)

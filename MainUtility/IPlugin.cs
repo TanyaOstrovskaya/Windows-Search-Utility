@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace MainUtility
 {
@@ -17,7 +18,7 @@ namespace MainUtility
         bool isSearchStopped { get; set; }
 
         void InitPlugin(Window reletiveWindow, SearchArguments args);
-        bool FindFilesByParams(SearchArguments args);
+        bool FindFilesByParams(SearchArguments args, BackgroundWorker worker, DoWorkEventArgs e);
 
         event EventHandler NewItemFound;    
     }

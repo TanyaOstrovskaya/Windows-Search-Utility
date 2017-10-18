@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MainUtility"
         mc:Ignorable="d"
-        Title="Результаты поиска" Height="350" Width="610">
+        Title="Результаты поиска" Height="350" Width="900">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="5"></RowDefinition>
