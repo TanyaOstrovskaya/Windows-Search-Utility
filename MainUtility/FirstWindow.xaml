@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MainUtility"
         mc:Ignorable="d" FontSize="19"
-        Title="Окно параметров поиска" Height="650" Width="650" ResizeMode="CanMinimize">
+        Title="Окно параметров поиска" Height="630" Width="650" ResizeMode="CanMinimize">
     <Grid Background="LightGray">
         <Grid.RowDefinitions>
             <RowDefinition Height="5"></RowDefinition>
@@ -56,17 +56,17 @@
         
         <Label Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="7" > 3. Укажите атрибуты файлов: </Label>
         <StackPanel Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3" x:Name="attribitesStackPanel">
-            <CheckBox Content="Архивный" />
-            <CheckBox Content="Скрытый" />
-            <CheckBox Content="Системный" />
-            <CheckBox Content="Только чтение" />
+            <CheckBox x:Name="archiveChBox" Content="Архивный" />
+            <CheckBox x:Name="hiddenChBox" Content="Скрытый" />
+            <CheckBox x:Name="systemChBox" Content="Системный" />
+            <CheckBox x:Name="readOnlyChBox" Content="Только чтение" />
         </StackPanel>
         <Label Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="5" > 4. Ограничение на размер файла (Кб)</Label>
         <Slider x:Name="fileSizeSlider" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Minimum="0" Maximum="1048756" ValueChanged="fileSizeSlider_ValueChanged" Grid.Row="15" Grid.Column="1" Grid.ColumnSpan="5" Value="15"></Slider>
         <Label x:Name="label" Grid.Row="15" Grid.Column="7" ></Label>
         <Label Grid.Row="17" Grid.Column="1" Grid.ColumnSpan="7" Margin="0,4,0,2" Grid.RowSpan="2"> 5. Искать файлы, созданные не позднее чем:</Label>
         <DatePicker x:Name="userDate" SelectedDateChanged="userDate_SelectedDateChanged" Grid.Row="19" Grid.Column="1" Grid.ColumnSpan="3"></DatePicker>
-        <Button Click="Button_Click" Grid.Row="22" Grid.Column="7">Начать поиск</Button>
+        <Button Click="StartSearchButton_Click" Grid.Row="22" Grid.Column="7">Начать поиск</Button>
         
     </Grid>
 </Window>

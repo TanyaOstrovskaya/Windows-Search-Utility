@@ -8,13 +8,15 @@ namespace MainUtility
 {
     public partial class FirstWindow : Window
     {
-        private string CurrentDir { get; set; }
+        private string CurrentDir { get; set; } = null;
         private long MaxFileSize { get; set; }
-        private DateTime selectedDate { get; set; }
+        private DateTime selectedDate { get; set; } 
 
         public FirstWindow()
         {
             InitializeComponent();
+            this.fileSizeSlider.Value = 0;
+            this.MaxFileSize = 0;
         }
 
         private void DialogButton_Click(object sender, RoutedEventArgs e)
@@ -39,7 +41,7 @@ namespace MainUtility
         }
 
         private bool GetCheckedRecursiveSearch ()
-        {
+        {            
             return recursiveSearchContainer.Children.OfType<RadioButton>().FirstOrDefault(r => (bool)r.IsChecked).Content.Equals("да");
         }
         
@@ -72,16 +74,47 @@ namespace MainUtility
             }       
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void StartSearchButton_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow mainWindow = new MainWindow();
-  
-            SearchArguments args = new SearchArguments(CurrentDir, GetCheckedRecursiveSearch(), GetSelectedFileAttributes(), MaxFileSize, selectedDate);
-            mainWindow.SearchArgs = args;
-            mainWindow.Show();
+            if (ValidateUserInput())
+            {
+                MainWindow mainWindow = new MainWindow();
+                SearchArguments args = new SearchArguments(CurrentDir, GetCheckedRecursiveSearch(), GetSelectedFileAttributes(), MaxFileSize, selectedDate);
+                mainWindow.SearchArgs = args;
+                mainWindow.Show();
+                this.Close();
+            }
+        }
 
-            Console.WriteLine("{0} {1} {2} {3} {4}", args.DirPath, args.IsSearchRecursive, args.Attributes, args.FileSize, args.LastTime);
-            this.Close();
+        private bool ValidateUserInput()
+        {
+            if (!(System.IO.Directory.Exists(CurrentDir)))
+            {
+                MessageBox.Show ("Неверно введен путь к директории");
+                return false;
+            }           
+            if (recursiveSearchContainer.Children.OfType<RadioButton>().FirstOrDefault(r => (bool)r.IsChecked) == null)
+            {
+                MessageBox.Show("Не указано, производить ли поиск в каталогах");
+                return false;
+            }
+            if (!((bool)(archiveChBox.IsChecked) || (bool)(hiddenChBox.IsChecked) || (bool)(systemChBox.IsChecked) || (bool)(readOnlyChBox.IsChecked)))
+            {
+                MessageBox.Show("Не указаны атрибуты файла");
+                return false;
+            }
+            if (MaxFileSize == 0)
+            {
+                MessageBox.Show("Не указан максимальный размер файла");
+                return false;
+            }
+            if (selectedDate == DateTime.MinValue)
+            {
+                MessageBox.Show("Дата не указана");
+                return false;
+            }
+
+            return true;
         }
 
         private void userDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)

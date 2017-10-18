@@ -11,7 +11,8 @@ using System.Windows;
 using System.Collections.ObjectModel;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop;
-
+using System.ComponentModel;
+using System.Threading;
 
 namespace DocPlugin
 {
@@ -20,81 +21,68 @@ namespace DocPlugin
     public class DocSearcher : MainUtility.IPlugin
     {
         public ObservableCollection<string> pluginSearchResultList { get; set; }
-        public UserControl pluginUserControl { get; set; }
-        public bool isSearchStopped { get; set; }
+        public UserControl pluginUserControl { get; set; }      
 
         private SearchArguments _args;
-        private string userTitle;
-        private string userSubject;
-        private string userAuthor;
-        private string userManager;
-        private string userCompany;
-
-        public DocSearcher() { }
-
-        public void InitPlugin(System.Windows.Window relativeWindow, SearchArguments args)
-        {
-            this._args = args;
-            pluginUserControl = new DocUserControl();
-            (pluginUserControl as DocUserControl).SearchStart += new EventHandler(OnSearchButtonClick);
-        }
+        public string userTitle;
+        public string userSubject;
+        public string userAuthor;
+        public string userManager;
+        public string userCompany;
 
         public event EventHandler NewItemFound;
-
         protected virtual void OnNewItemFound()
         {
             if (NewItemFound != null) NewItemFound(this, EventArgs.Empty);
         }
 
-        private void OnSearchButtonClick(object sender, EventArgs e)
+        public DocSearcher() { }
+
+        public void InitPlugin(SearchArguments args)
         {
-            FindFilesByParams(_args);
+            this._args = args;
+            pluginUserControl = new DocUserControl(this);
         }
 
-        public bool FindFilesByParams(SearchArguments args)
+        public bool FindFilesAsync(BackgroundWorker worker, DoWorkEventArgs e)
         {
-            GetUserInputProperties();
-            isSearchStopped = false;
-            _args = args;
-            pluginSearchResultList = new ObservableCollection<string>();
-            var dirPath = args.DirPath;
+            if (worker.CancellationPending)
+                e.Cancel = true;
 
-            if (args.IsSearchRecursive)
-                SearchDirRecursively(dirPath);
+            var dirPath = _args.DirPath;
+            pluginSearchResultList = new ObservableCollection<string>();
+
+            if (_args.IsSearchRecursive)
+                SearchDirRecursively(dirPath, worker, e);
             else
-                SearchDir(dirPath);
+                SearchDir(dirPath, worker, e);
 
             return true;
         }
 
-        private void GetUserInputProperties()
-        {
-            userTitle = (pluginUserControl as DocUserControl).docTitle.Text;
-            userSubject = (pluginUserControl as DocUserControl).docSubject.Text;
-            userAuthor = (pluginUserControl as DocUserControl).docAuthor.Text;
-            userManager = (pluginUserControl as DocUserControl).docManager.Text;
-            userCompany = (pluginUserControl as DocUserControl).docOrganization.Text;
-        }
-
-        private void SearchDir(string dirPath)
+        private void SearchDir(string dirPath, BackgroundWorker worker, DoWorkEventArgs e)
         {
             try
             {
                 foreach (string file in Directory.GetFiles(dirPath))
                 {
                     FileInfo fInfo = new FileInfo(file);
-                    if (this.CheckAllSearchParameters(file, _args.Attributes)
+                    if ((fInfo.Extension).Equals(".doc")
+                        && this.CheckAllSearchParameters(file, _args.Attributes)
                         && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0)
                         && (fInfo.Length < _args.FileSize)
-                        && (fInfo.Extension).Equals(".doc")
                         && (CheckDocFileProperties(@file)))
                     {
                         pluginSearchResultList.Add(file);
                         OnNewItemFound();
                     }
-                    if (isSearchStopped)
+                    if (worker.CancellationPending)
+                    {
+                        e.Cancel = true;
                         return;
-                }
+                    }
+                    Thread.Sleep(100);      // sleep makes UI thread be able to response during the search
+                }   
             }
             catch (Exception ex)
             {
@@ -102,14 +90,14 @@ namespace DocPlugin
             }
         }
 
-        private void SearchDirRecursively(string dirPath)
+        private void SearchDirRecursively(string dirPath, BackgroundWorker worker, DoWorkEventArgs e)
         {
             try
             {
                 foreach (string dir in Directory.GetDirectories(dirPath))
                 {
-                    SearchDir(dir);
-                    SearchDirRecursively(dir);
+                    SearchDir(dir, worker, e);
+                    SearchDirRecursively(dir, worker, e);
                 }
             }
             catch (System.Exception ex)

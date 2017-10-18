@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DocPlugin"
              mc:Ignorable="d" 
-             Background="White"
+             Background="LightGray"
              Width="300" Height="230"
              d:DesignHeight="230" d:DesignWidth="300">
     <Grid>
@@ -33,23 +33,27 @@
             <ColumnDefinition Width="2*"></ColumnDefinition>
             <ColumnDefinition Width="5"></ColumnDefinition>
             <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="5"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
             <ColumnDefinition Width="5"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3">Задайте атрибуты DOC файла</Label>
+        <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="6">Задайте необходимые атрибуты DOC файлов:</Label>
         <Label Grid.Row="5" Grid.Column="1">Название:</Label>
         <Label Grid.Row="7" Grid.Column="1">Тема:</Label>
         <Label Grid.Row="9" Grid.Column="1">Автор:</Label>
         <Label Grid.Row="11" Grid.Column="1">Руководитель:</Label>
         <Label Grid.Row="13" Grid.Column="1">Организация:</Label>
 
-        <TextBox x:Name="docTitle" Grid.Row="5" Grid.Column="3"></TextBox>
-        <TextBox x:Name="docSubject" Grid.Row="7" Grid.Column="3"></TextBox>
-        <TextBox x:Name="docAuthor" Grid.Row="9" Grid.Column="3"></TextBox>
-        <TextBox x:Name="docManager"  Grid.Row="11" Grid.Column="3"></TextBox>
-        <TextBox x:Name="docOrganization"  Grid.Row="13" Grid.Column="3"></TextBox>
+        <TextBox x:Name="docTitle" Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="4"></TextBox>
+        <TextBox x:Name="docSubject" Grid.Row="7" Grid.Column="3" Grid.ColumnSpan="4"></TextBox>
+        <TextBox x:Name="docAuthor" Grid.Row="9" Grid.Column="3" Grid.ColumnSpan="4"></TextBox>
+        <TextBox x:Name="docManager"  Grid.Row="11" Grid.Column="3" Grid.ColumnSpan="4"></TextBox>
+        <TextBox x:Name="docOrganization"  Grid.Row="13" Grid.Column="3" Grid.ColumnSpan="4"></TextBox>
 
-        <Button x:Name="searchButton" Click="searchButton_Click" Grid.Row="15" Grid.Column="3" HorizontalAlignment="Right">ПОИСК</Button>
+        <Button x:Name="searchButton" Click="SearchButton_Click" Grid.Row="15" Grid.Column="6" HorizontalAlignment="Right">ПОИСК</Button>
+        <Button x:Name="StopButton" Click="StopButton_Click" Grid.Row="15" Grid.Column="3" HorizontalAlignment="Right">Остановить поиск</Button>
 
     </Grid>
 </UserControl>

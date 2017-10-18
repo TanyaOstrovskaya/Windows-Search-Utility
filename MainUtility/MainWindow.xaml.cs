@@ -102,12 +102,16 @@ namespace MainUtility
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
+            if (pluginNamesListBox.SelectedIndex == -1)
+                return;
+
             String pluginName = pluginNamesListBox.SelectedItem.ToString();
+
             foreach (Lazy<IPlugin, IPluginData> i in plugins)
             {
                 if (i.Metadata.Extension.Equals(pluginName))
                 {
-                    i.Value.InitPlugin(this, SearchArgs);
+                    i.Value.InitPlugin(SearchArgs);
                     currPlugin = i.Value;
                     Window pluginWindow = new Window();
                     Panel pluginPanel = new StackPanel();
@@ -129,26 +133,6 @@ namespace MainUtility
                 int index = (sender as IPlugin).pluginSearchResultList.Count - 1;
                 FilesList.Text += (sender as MainUtility.IPlugin).pluginSearchResultList[index] + "\n";
             });
-          
-
-            //if (FilesList.Items.Count == 0)
-            //{
-            //    FilesList.Items.Add((sender as MainUtility.IPlugin).pluginSearchResultList[0]);
-            //} else
-            //{
-
-            //    FilesList.Items.Add((sender as MainUtility.IPlugin).pluginSearchResultList[index]);
-            //}
-
-           
-
-
-        }
-
-        private void StopButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (currPlugin != null)
-                currPlugin.isSearchStopped = true;
         }
     }
 }

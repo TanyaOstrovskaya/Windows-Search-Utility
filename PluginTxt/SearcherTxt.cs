@@ -20,41 +20,33 @@ namespace PluginTxt
     {
         public ObservableCollection<string> pluginSearchResultList { get; set; }
         public UserControl pluginUserControl { get; set; }
-        public bool isSearchStopped { get; set; }
-
-        public SearchArguments _args;
-
-        public SearcherTxt() { }
-
-        public void InitPlugin(Window relativeWindow, SearchArguments args) 
-        {
-            this._args = args;
-            pluginUserControl = new TxtUserControl(this);       
-        }
+        private SearchArguments _args;
 
         public event EventHandler NewItemFound;
-
         protected virtual void OnNewItemFound()
         {
-            if (NewItemFound != null) 
+            if (NewItemFound != null)
                 NewItemFound(this, EventArgs.Empty);
         }
 
-        public bool FindFilesByParams(SearchArguments args, BackgroundWorker worker, DoWorkEventArgs e)
+        public SearcherTxt() { }
+
+        public void InitPlugin (SearchArguments args) 
         {
+            this._args = args;
+            pluginUserControl = new TxtUserControl(this);       
+        }       
 
-            if (worker.CancellationPending)
-            {
-                e.Cancel = true;
-            }
+        public bool FindFilesAsync (BackgroundWorker worker, DoWorkEventArgs e)
+        {
+            if (worker.CancellationPending)            
+                e.Cancel = true;            
 
-            isSearchStopped = false;
-            _args = args;
-            var dirPath = args.DirPath;
+            var dirPath = _args.DirPath;
             pluginSearchResultList = new ObservableCollection<string>();
             string substr = (pluginUserControl as TxtUserControl).SearchSubstrText.Trim();
 
-            if (args.IsSearchRecursive)
+            if (_args.IsSearchRecursive)
                 SearchDirRecursively(dirPath, substr, worker, e);
             else
                 SearchDir(dirPath, substr, worker, e);
@@ -70,10 +62,11 @@ namespace PluginTxt
                 {
                     FileInfo fInfo = new FileInfo(file);
 
-                    if ( this.CheckAllSearchParameters(file, _args.Attributes)
+                    if ((fInfo.Extension.Equals(".txt"))
+                        && this.CheckAllSearchParameters(file, _args.Attributes)
                         && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0)
-                        && (fInfo.Length < _args.FileSize) && (CheckFileContainsSubstring(file, substr))
-                        && (fInfo.Extension.Equals(".txt")))
+                        && (fInfo.Length < _args.FileSize) && (CheckFileContainsSubstring(file, substr)))
+                       
                     {
                         pluginSearchResultList.Add(file);
                         OnNewItemFound();
@@ -83,7 +76,7 @@ namespace PluginTxt
                         e.Cancel = true;
                         return;
                     }
-                    Thread.Sleep(100);
+                    Thread.Sleep(100);      // sleep makes UI thread be able to response during the search
 
                 }
             }
@@ -99,7 +92,6 @@ namespace PluginTxt
             {
                 foreach (string dir in Directory.GetDirectories(dirPath))
                 {
-
                     SearchDir(dir, substr, worker, e); 
                     SearchDirRecursively(dir, substr, worker, e);
                 }

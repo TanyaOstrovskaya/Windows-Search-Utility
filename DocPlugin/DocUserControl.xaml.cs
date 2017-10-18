@@ -1,42 +1,73 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.ComponentModel.Composition;
-using MainUtility;
-using System.IO;
+
 
 namespace DocPlugin
 {
     public partial class DocUserControl : UserControl
     {
+        private DocSearcher _searcher;
+        private BackgroundWorker backgrWorker;
+
         public DocUserControl()
         {
             InitializeComponent();
         }
-
-        public event EventHandler SearchStart;
-
-        protected virtual void OnSearchStart()
+        public DocUserControl(DocSearcher searcher)
         {
-            if (SearchStart != null) SearchStart(this, EventArgs.Empty);
+            InitializeComponent();
+            InitBackgroundWorker();
+            this._searcher = searcher;
         }
 
-        private void searchButton_Click(object sender, RoutedEventArgs e)
+        private void InitBackgroundWorker()
         {
-            OnSearchStart();
-        }       
-        
+            backgrWorker = new BackgroundWorker();
+            this.backgrWorker.WorkerSupportsCancellation = true;
+            backgrWorker.DoWork += new DoWorkEventHandler(backgroundWorker_DoWork);
+            backgrWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_RunWorkerCompleted);
+        }
+
+        private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                MessageBox.Show(e.Error.Message);
+            }
+            else if (e.Cancelled)
+            {
+                MessageBox.Show("Поиск остановлен");
+            }
+            else
+            {
+                MessageBox.Show("Поиск завершен");
+            }
+        }
+
+        private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            StopButton.Dispatcher.Invoke(() => StopButton.IsEnabled = true);
+            this._searcher.FindFilesAsync(worker, e);
+        }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            _searcher.userTitle = docTitle.Text;
+            _searcher.userSubject = docSubject.Text;
+            _searcher.userAuthor = docAuthor.Text;
+            _searcher.userManager = docManager.Text;
+            _searcher.userCompany = docOrganization.Text;
+
+            backgrWorker.RunWorkerAsync();
+        }
+
+        private void StopButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.backgrWorker.CancelAsync();
+        }
     }
 }
 

@@ -25,14 +25,14 @@
             <ColumnDefinition Width="1*"></ColumnDefinition>
             <ColumnDefinition Width="auto"></ColumnDefinition>
             <ColumnDefinition Width="5"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="5"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">Введите подстроку в искомых файлах:</Label>
-        <RichTextBox x:Name="SubstringTextBox" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" ></RichTextBox>
+        <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4">Введите подстроку в искомых файлах:</Label>
+        <RichTextBox x:Name="SubstringTextBox" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="4" ></RichTextBox>
         <Button x:Name="SearchButton" Click="SearchButton_Click" Grid.Row="5" Grid.Column="2">ИСКАТЬ</Button>
-        <Button x:Name="StopButton" Click="StopButton_Click" Grid.Row="5" Grid.Column="1">Stop search</Button>
-        
-        
+        <Button x:Name="StopButton" Click="StopButton_Click" Grid.Row="5" Grid.Column="4">Остановить поиск</Button>        
     </Grid>
 </UserControl>
    
