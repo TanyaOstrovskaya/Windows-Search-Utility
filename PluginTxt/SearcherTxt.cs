@@ -9,6 +9,8 @@ using MainUtility;
 using System.Windows.Controls;
 using System.Windows;
 using System.Collections.ObjectModel;
+using System.Threading;
+using System.ComponentModel;
 
 namespace PluginTxt
 {
@@ -16,63 +18,51 @@ namespace PluginTxt
     [ExportMetadata("Extension", "txt")]
     public class SearcherTxt : MainUtility.IPlugin
     {
-        public ObservableCollection<string> searchResult { get; set; }
-        public UserControl userControl { get; set; }
+        public ObservableCollection<string> pluginSearchResultList { get; set; }
+        public UserControl pluginUserControl { get; set; }
+        public bool isSearchStopped { get; set; }
 
-        private bool _isSearchStoppedByUser { get; set; }
-        private SearchArguments _args;
-        private int counter;
+        public SearchArguments _args;
 
-        public SearcherTxt()
-        {
-        }
+        public SearcherTxt() { }
 
         public void InitPlugin(Window relativeWindow, SearchArguments args) 
         {
             this._args = args;
-            userControl = new TxtUserControl();       
-            (userControl as TxtUserControl).SearchStart += new EventHandler(OnSearchButtonClick);
+            pluginUserControl = new TxtUserControl(this);       
         }
 
         public event EventHandler NewItemFound;
 
         protected virtual void OnNewItemFound()
         {
-            if (NewItemFound != null) NewItemFound(this, EventArgs.Empty);
+            if (NewItemFound != null) 
+                NewItemFound(this, EventArgs.Empty);
         }
 
-        private void OnSearchButtonClick(object sender, EventArgs e)
+        public bool FindFilesByParams(SearchArguments args, BackgroundWorker worker, DoWorkEventArgs e)
         {
-            /*
 
-            1. get params from text fields
-            2. validate them
-            3. do search
-            4. event "Search stopped"
-            5. relative window will handle it
-                       
-            */
+            if (worker.CancellationPending)
+            {
+                e.Cancel = true;
+            }
 
-            FindFilesByParams(_args);
-
-        public bool FindFilesByParams(SearchArguments args)
-        {
-            _isSearchStoppedByUser = false;
+            isSearchStopped = false;
             _args = args;
-
             var dirPath = args.DirPath;
-            searchResult = new ObservableCollection<string>();
-            string substr = (userControl as TxtUserControl).SearchSubstrText.Trim();
+            pluginSearchResultList = new ObservableCollection<string>();
+            string substr = (pluginUserControl as TxtUserControl).SearchSubstrText.Trim();
 
             if (args.IsSearchRecursive)
-                SearchDirRecursively(dirPath, substr);
+                SearchDirRecursively(dirPath, substr, worker, e);
             else
-                SearchDir(dirPath, substr);
+                SearchDir(dirPath, substr, worker, e);
 
             return true;
         }
 
-        private void SearchDir(string dirPath, string substr)
+        private void SearchDir(string dirPath, string substr, BackgroundWorker worker, DoWorkEventArgs e)
         {
             try
             {
@@ -80,15 +70,21 @@ namespace PluginTxt
                 {
                     FileInfo fInfo = new FileInfo(file);
 
-                    if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0)
-                        && (fInfo.Length < _args.FileSize) && (CheckFileContainsSubstring(file, substr)))
+                    if ( this.CheckAllSearchParameters(file, _args.Attributes)
+                        && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0)
+                        && (fInfo.Length < _args.FileSize) && (CheckFileContainsSubstring(file, substr))
+                        && (fInfo.Extension.Equals(".txt")))
                     {
-                        searchResult.Add(file);
-                        ++counter;
+                        pluginSearchResultList.Add(file);
                         OnNewItemFound();
                     }
-                    if (_isSearchStoppedByUser)
+                    if (worker.CancellationPending)
+                    {
+                        e.Cancel = true;
                         return;
+                    }
+                    Thread.Sleep(100);
+
                 }
             }
             catch (Exception ex)
@@ -97,15 +93,15 @@ namespace PluginTxt
             }
         }
 
-        private void SearchDirRecursively (string dirPath, string substr)
+        private void SearchDirRecursively (string dirPath, string substr, BackgroundWorker worker, DoWorkEventArgs e)
         {           
             try
             {
                 foreach (string dir in Directory.GetDirectories(dirPath))
                 {
 
-                    SearchDir(dir, substr); 
-                    SearchDirRecursively(dir, substr);                    
+                    SearchDir(dir, substr, worker, e); 
+                    SearchDirRecursively(dir, substr, worker, e);
                 }
             }
             catch (System.Exception ex)
@@ -123,7 +119,6 @@ namespace PluginTxt
             }
             return false;
         }
-
 
         private bool CheckAllSearchParameters(string file, FileAttributes searchAttributes)
         {

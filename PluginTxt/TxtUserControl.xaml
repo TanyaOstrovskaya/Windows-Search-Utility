@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:cm="clr-namespace:System.ComponentModel;assembly=System"
              xmlns:local="clr-namespace:PluginTxt"
              Background="LightGray"
              mc:Ignorable="d" 
@@ -29,5 +30,9 @@
         <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">Введите подстроку в искомых файлах:</Label>
         <RichTextBox x:Name="SubstringTextBox" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" ></RichTextBox>
         <Button x:Name="SearchButton" Click="SearchButton_Click" Grid.Row="5" Grid.Column="2">ИСКАТЬ</Button>
+        <Button x:Name="StopButton" Click="StopButton_Click" Grid.Row="5" Grid.Column="1">Stop search</Button>
+        
+        
     </Grid>
 </UserControl>
+   

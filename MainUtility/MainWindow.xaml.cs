@@ -10,6 +10,7 @@ using System.Security.Permissions;
 using System.Threading;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Windows.Threading;
 
 namespace MainUtility
 {
@@ -23,7 +24,9 @@ namespace MainUtility
         private CompositionContainer _container;
         private FileSystemWatcher _watcher;
         private SearchArguments searchArgs;
+        private ObservableCollection<string> resList = new ObservableCollection<string>();
 
+        private IPlugin currPlugin;
 
         public SearchArguments SearchArgs {
             get { return searchArgs; }
@@ -33,7 +36,6 @@ namespace MainUtility
                 this.currentDirName.Content = SearchArgs.DirPath;
             }
         }
-
 
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public MainWindow()
@@ -106,15 +108,14 @@ namespace MainUtility
                 if (i.Metadata.Extension.Equals(pluginName))
                 {
                     i.Value.InitPlugin(this, SearchArgs);
-
+                    currPlugin = i.Value;
                     Window pluginWindow = new Window();
                     Panel pluginPanel = new StackPanel();
-                    pluginPanel.Children.Add(i.Value.userControl);                    
+                    pluginPanel.Children.Add(i.Value.pluginUserControl);                    
                     pluginWindow.Content = pluginPanel;
-                    pluginWindow.Width = i.Value.userControl.Width + 40;
-                    pluginWindow.Height = i.Value.userControl.Height + 40;
-                    i.Value.NewItemFound += new EventHandler(HandleNewItemFound);
-                    FilesList.Items.Clear();               
+                    pluginWindow.Width = i.Value.pluginUserControl.Width + 40;
+                    pluginWindow.Height = i.Value.pluginUserControl.Height + 40;
+                    i.Value.NewItemFound += new EventHandler(HandleNewItemFound);                   
 
                     pluginWindow.Show();
                 }
@@ -123,16 +124,31 @@ namespace MainUtility
 
         private void HandleNewItemFound(object sender, EventArgs e)
         {
-            if (FilesList.Items.Count == 0)
+            FilesList.Dispatcher.Invoke(DispatcherPriority.Render, (Action)delegate () 
             {
-                FilesList.Items.Add((sender as MainUtility.IPlugin).searchResult[0]);
-            } else
-            {
-                int index = (sender as MainUtility.IPlugin).searchResult.Count - 1;
-                FilesList.Items.Add((sender as MainUtility.IPlugin).searchResult[index]);
-            }
-            
-            FilesList.UpdateLayout();
+                int index = (sender as IPlugin).pluginSearchResultList.Count - 1;
+                FilesList.Text += (sender as MainUtility.IPlugin).pluginSearchResultList[index] + "\n";
+            });
+          
+
+            //if (FilesList.Items.Count == 0)
+            //{
+            //    FilesList.Items.Add((sender as MainUtility.IPlugin).pluginSearchResultList[0]);
+            //} else
+            //{
+
+            //    FilesList.Items.Add((sender as MainUtility.IPlugin).pluginSearchResultList[index]);
+            //}
+
+           
+
+
+        }
+
+        private void StopButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (currPlugin != null)
+                currPlugin.isSearchStopped = true;
         }
     }
 }

@@ -35,10 +35,7 @@ namespace DocPlugin
         private void searchButton_Click(object sender, RoutedEventArgs e)
         {
             OnSearchStart();
-        }
-
-
-        
+        }       
         
     }
 }
