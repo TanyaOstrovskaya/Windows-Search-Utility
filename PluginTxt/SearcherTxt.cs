@@ -54,7 +54,6 @@ namespace PluginTxt
             */
 
             FindFilesByParams(_args);
-        }
 
         public bool FindFilesByParams(SearchArguments args)
         {
@@ -80,6 +79,7 @@ namespace PluginTxt
                 foreach (string file in Directory.GetFiles(dirPath))
                 {
                     FileInfo fInfo = new FileInfo(file);
+
                     if (this.CheckAllSearchParameters(file, _args.Attributes) && (DateTime.Compare(fInfo.CreationTime, _args.LastTime) < 0)
                         && (fInfo.Length < _args.FileSize) && (CheckFileContainsSubstring(file, substr)))
                     {
@@ -103,8 +103,9 @@ namespace PluginTxt
             {
                 foreach (string dir in Directory.GetDirectories(dirPath))
                 {
+
                     SearchDir(dir, substr); 
-                    SearchDirRecursively(dir, substr);
+                    SearchDirRecursively(dir, substr);                    
                 }
             }
             catch (System.Exception ex)
