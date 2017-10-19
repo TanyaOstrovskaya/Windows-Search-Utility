@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:DocPlugin"
              mc:Ignorable="d" 
              Background="LightGray"
-             Width="300" Height="230"
+             Width="500" Height="300"
+             FontSize="19"
              d:DesignHeight="230" d:DesignWidth="300">
     <Grid>
         <Grid.RowDefinitions>
@@ -52,7 +53,7 @@
         <TextBox x:Name="docManager"  Grid.Row="11" Grid.Column="3" Grid.ColumnSpan="4"></TextBox>
         <TextBox x:Name="docOrganization"  Grid.Row="13" Grid.Column="3" Grid.ColumnSpan="4"></TextBox>
 
-        <Button x:Name="searchButton" Click="SearchButton_Click" Grid.Row="15" Grid.Column="6" HorizontalAlignment="Right">ПОИСК</Button>
+        <Button x:Name="SearchButton" Click="SearchButton_Click" Grid.Row="15" Grid.Column="6" HorizontalAlignment="Right">ПОИСК</Button>
         <Button x:Name="StopButton" Click="StopButton_Click" Grid.Row="15" Grid.Column="3" HorizontalAlignment="Right">Остановить поиск</Button>
 
     </Grid>

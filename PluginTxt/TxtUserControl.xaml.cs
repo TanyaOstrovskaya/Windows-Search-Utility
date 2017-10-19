@@ -45,6 +45,8 @@ namespace PluginTxt
 
         private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            SearchButton.IsEnabled = true;
+
             if (e.Error != null)
             {
                 MessageBox.Show(e.Error.Message);
@@ -55,14 +57,21 @@ namespace PluginTxt
             }
             else
             {
-                MessageBox.Show("Поиск завершен");
+                MessageBox.Show("Поиск завершен");               
             }
+
+            Window parent = Window.GetWindow(this);
+            parent.Close();
         }
 
         private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
-            StopButton.Dispatcher.Invoke( () => StopButton.IsEnabled = true );
+            StopButton.Dispatcher.Invoke( () =>
+            {
+                StopButton.IsEnabled = true;
+                SearchButton.IsEnabled = false;
+            });
             this._searcher.FindFilesAsync (worker, e);
         }      
 

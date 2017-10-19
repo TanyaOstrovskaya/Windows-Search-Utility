@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MainUtility"
         mc:Ignorable="d"
-        Title="Результаты поиска" Height="350" Width="700">
+        FontSize="19" ResizeMode="CanMinimize"
+        Background="LightGray"
+        Title="Результаты поиска" Height="500" Width="1100">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="5"></RowDefinition>
@@ -22,23 +24,23 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5"></ColumnDefinition>
-            <ColumnDefinition Width="2*"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
             <ColumnDefinition Width="5"></ColumnDefinition>
-            <ColumnDefinition Width="2*"></ColumnDefinition>
-            <ColumnDefinition Width="2*"></ColumnDefinition>
-           
+            <ColumnDefinition Width="4*"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="5"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
             <ColumnDefinition Width="5"></ColumnDefinition>       
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="1" Grid.Column="1">Текущая директория поиска:</Label>
-        <Label x:Name="currentDirName" Grid.Row="3" Grid.Column="1"></Label>
-        <Label Grid.Row="5" Grid.Column="1">Выберите расширения файлов:</Label>
-        <ListBox x:Name="pluginNamesListBox" Grid.Row="7" Grid.Column="1" Grid.RowSpan="3">
+        <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" >Текущая директория поиска:</Label>
+        <Label x:Name="currentDirName" Grid.Row="3" Grid.Column="1" FontStyle="Italic"></Label>
+        <Label Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3">Выберите расширения файлов:</Label>
+        <ListBox x:Name="pluginNamesListBox" Grid.Row="7" Grid.Column="1" ScrollViewer.VerticalScrollBarVisibility="Auto">
             
         </ListBox>
         <Label Grid.Row="1" Grid.Column="3">Найденные файлы:</Label>
         <TextBox Text="{Binding Path=MessageText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Grid.Row="3" Grid.Column="3"  Name="FilesList" Margin="2" Grid.RowSpan="5"  Grid.ColumnSpan="4"></TextBox>
-        <Button Click="SearchButton_Click" Grid.Row="9" Grid.Column="3" Margin="5">ПОИСК</Button>
-        <Button Grid.Row="9" Grid.Column="4" Margin="5">Изменить параметры поиска </Button>
-        
+        <Button Click="SearchButton_Click" Grid.Row="9" Grid.Column="4" Margin="5">Начать поиск</Button>
+        <Button x:Name="ChangeSearchArgsButton" Click="ChangeSearchArgs_Click"  Grid.Row="9" Grid.Column="6" Margin="5">Изменить параметры поиска </Button>        
     </Grid>
 </Window>

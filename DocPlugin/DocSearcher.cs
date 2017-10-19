@@ -81,7 +81,7 @@ namespace DocPlugin
                         e.Cancel = true;
                         return;
                     }
-                    Thread.Sleep(100);      // sleep makes UI thread be able to response during the search
+                    Thread.Sleep(50);      // sleep makes UI thread be able to response during the search
                 }   
             }
             catch (Exception ex)

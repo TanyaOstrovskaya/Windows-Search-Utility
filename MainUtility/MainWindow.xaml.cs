@@ -25,6 +25,7 @@ namespace MainUtility
         private FileSystemWatcher _watcher;
         private SearchArguments searchArgs;
         private ObservableCollection<string> resList = new ObservableCollection<string>();
+        Window pluginWindow;
 
         private IPlugin currPlugin;
 
@@ -105,6 +106,8 @@ namespace MainUtility
             if (pluginNamesListBox.SelectedIndex == -1)
                 return;
 
+            ChangeSearchArgsButton.IsEnabled = false;
+            FilesList.Text = String.Empty;
             String pluginName = pluginNamesListBox.SelectedItem.ToString();
 
             foreach (Lazy<IPlugin, IPluginData> i in plugins)
@@ -113,17 +116,23 @@ namespace MainUtility
                 {
                     i.Value.InitPlugin(SearchArgs);
                     currPlugin = i.Value;
-                    Window pluginWindow = new Window();
+                    pluginWindow = new Window();
                     Panel pluginPanel = new StackPanel();
                     pluginPanel.Children.Add(i.Value.pluginUserControl);                    
                     pluginWindow.Content = pluginPanel;
-                    pluginWindow.Width = i.Value.pluginUserControl.Width + 40;
+                    pluginWindow.Width = i.Value.pluginUserControl.Width + 20;
                     pluginWindow.Height = i.Value.pluginUserControl.Height + 40;
                     i.Value.NewItemFound += new EventHandler(HandleNewItemFound);                   
 
                     pluginWindow.Show();
+                    pluginWindow.Closed += new EventHandler(HandlePluginWindowClosed);
                 }
             }
+        }
+
+        private void HandlePluginWindowClosed(object sender, EventArgs e)
+        {
+            ChangeSearchArgsButton.IsEnabled = true;
         }
 
         private void HandleNewItemFound(object sender, EventArgs e)
@@ -133,6 +142,13 @@ namespace MainUtility
                 int index = (sender as IPlugin).pluginSearchResultList.Count - 1;
                 FilesList.Text += (sender as MainUtility.IPlugin).pluginSearchResultList[index] + "\n";
             });
+        }
+
+        private void ChangeSearchArgs_Click(object sender, RoutedEventArgs e)
+        {
+            FirstWindow window = new FirstWindow();
+            window.Show();
+            this.Close();
         }
     }
 }
